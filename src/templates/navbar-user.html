@@ -1,0 +1,29 @@
+<div class="row">
+  <nav id="mobile-nav" class="col-xs-12">
+    <ul class="right hide-on-med-and-down">
+      <li><a href="{% url 'accounts:profile' %}">User Account</a></li>
+      <li><a href="">Payment</a></li>
+      <li><a href="">History</a></li>
+      <li><a href="{% url 'accounts:vehicle' %}">Registered Vehicle</a></li>
+      <li><a href="{% url 'accounts:license' %}">Drivers License</a></li>
+      <li><a href="{% url 'accounts:insurance' %}">Insurance Policy</a></li>
+      <li><a href="#!">Notifications</a></li>
+      <li><a href="#!">Help</a></li>
+      <li><a href="#!">Settings</a></li>
+    </ul>
+    <ul id="slide-out" class="side-nav">
+      <li><a href="{% url 'accounts:profile' %}">User Account</a></li>
+      <li><a href="">Payment</a></li>
+      <li><a href="">History</a></li>
+      <li><a href="{% url 'accounts:vehicle' %}">Registered Vehicle</a></li>
+      <li><a href="{% url 'accounts:license' %}">Drivers License</a></li>
+      <li><a href="{% url 'accounts:insurance' %}">Insurance Policy</a></li>
+      <li><a href="#!">Notifications</a></li>
+      <li><a href="#!">Help</a></li>
+      <li><a href="#!">Settings</a></li>
+      <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+    <a href="#" data-activates="slide-out" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+    <a href="{% url 'user-map' %}"><i id="globe-btn" class="fa fa-globe fa-2x"></i></a>
+  </nav>
+</div>

@@ -1,0 +1,120 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#map {
+  height: 100%;
+}
+#floating-panel {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  margin-left: -180px;
+  width: 350px;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+#floating-button {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  /*background-color: #fff;*/
+  padding: 5px;
+  /*border: 1px solid #999;*/
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+#floating-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -180px;
+  width: 350px;
+  z-index: 5;
+  /*background-color: #fff;*/
+  padding: 5px;
+  /*border: 1px solid #999;*/
+}
+#floating-button2 {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  /*background-color: #fff;*/
+  padding: 5px;
+  /*border: 1px solid #999;*/
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+#floating-button2 {
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  margin-left: -180px;
+  width: 350px;
+  z-index: 5;
+  /*background-color: #fff;*/
+  padding: 5px;
+  /*border: 1px solid #999;*/
+}
+#floating-loading-screen {
+  position: absolute;
+  /*top: 225px;*/
+  /*left: 50%;*/
+  /*margin-left: -180px;*/
+  width: 100%;
+  z-index: 8;
+  background-color: #000;
+  padding: 5px;
+  /* border: 1px solid #999; */
+  color: #fff;
+  opacity: .8;
+  height: 95%;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  display: none;
+}
+#requestRepark {
+  position: absolute;
+  z-index: 5;
+  bottom: 0;
+}
+#requestDropoff {
+  position: absolute;
+  z-index: 5;
+  bottom: 0;
+  right: 0;
+}
+#mainNavbar {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  border: none;
+  border-bottom: 1px solid #000;
+  border-radius: 0px;
+}
+#latlng {
+  width: 225px;
+}
+#mobile-nav {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+}
+#sidenav-overlay {
+  z-index: 0;
+}

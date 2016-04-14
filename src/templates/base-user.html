@@ -1,0 +1,59 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html >
+<head>
+	<title></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/user-style.css' %}">
+	{% block jsblock %}
+
+	
+		
+	{% endblock jsblock %}
+	
+	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+
+	
+	<script type="text/javascript">
+	{% block jquery %}
+
+
+	{% endblock jquery %}
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$(".button-collapse").sideNav();
+			$(".datepicker").pickadate({
+				selectMonths: true,
+				selectYears: 30,
+			});
+			$('select').material_select();
+			{% block on_ready_js %}
+
+			{% endblock on_ready_js %}
+		});
+	</script>
+	
+	{% block styles %}
+
+	{% endblock styles %}
+</head>
+<body>
+
+	{% block navbar %}
+		{% include 'navbar-user.html' %}
+	{% endblock navbar %}
+
+	{% block content %}
+
+	{% endblock content %}
+
+</body>
+</html>

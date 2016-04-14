@@ -1,0 +1,15 @@
+{% extends 'base-user.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="container">
+		<div class="col-xs-12">
+			<form action="{% url 'accounts:license' %}" method="POST" class="">
+				{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" class="btn btn-primary btn-md" value="Save">
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock content %}

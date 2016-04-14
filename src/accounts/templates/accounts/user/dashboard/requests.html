@@ -1,0 +1,33 @@
+{% extends 'base-user.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="container">
+		<table class="responsive-table">
+			<thead>
+			  <tr>
+			      <th>UUID</th>
+			      <th>Valet</th>
+			      <th>Requested at</th>
+			      <th>Pickup Location</th>
+			      <th>Dropoff Location</th>
+			      <th>Dropped off at</th>
+			  </tr>
+			</thead>
+
+			<tbody>
+			{% for repark in reparks %}
+			  <tr>
+			    <td>{{ repark.repark_uuid }}</td>
+			    <td>{{ repark.reparked_by.first_name }} {{ repark.reparked_by.last_name }}</td>
+			    <td>{{ repark.requested_at }}</td>
+			    <td>{{ repark.pickup_location.full_address }}</td>
+			    <td>{{ repark.dropoff_location.full_address }}</td>
+			    <td>{{ repark.dropped_off_at }}</td>
+			  </tr>
+			 {% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock content %}
