@@ -336,19 +336,6 @@
     getCurrentLocation();
     displayAutocomplete();
 
-    //This line is what makes the Marker stick to the center of the map
-    marker.bindTo('position', map, 'center');
-
-    google.maps.event.addListener(map, 'dragstart', function (event) {
-      document.getElementById("latbox").value = this.getPosition().lat();
-      document.getElementById("lngbox").value = this.getPosition().lng();
-    });
-
-    google.maps.event.addListener(map, 'dragend', function (event) {
-      document.getElementById("latbox").value = this.getPosition().lat();
-      document.getElementById("lngbox").value = this.getPosition().lng();
-    });
-
     socket.on("request-accepted", function(data){
 
       console.log("request has been accepted");
@@ -511,7 +498,22 @@
 
 
   {% endblock on_ready_js %}
+  {% block window_load_js %}
+    console.log(marker);
 
+    //This line is what makes the Marker stick to the center of the map
+    marker.bindTo('position', map, 'center');
+
+    google.maps.event.addListener(map, 'dragend', function (event) {
+
+      //console.log(map.getCenter().lat());
+      //console.log(map.getCenter().lng());
+
+      document.getElementById("latbox").value = map.getCenter().lat();
+      document.getElementById("lngbox").value = map.getCenter().lng();
+
+    });
+  {% endblock window_load_js %}
 
 
 {% block styles %}

@@ -22,13 +22,14 @@
 
 	
 	<script type="text/javascript">
-	{% block jquery %}
+		{% block jquery %}
 
 
-	{% endblock jquery %}
+		{% endblock jquery %}
 	</script>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			
 			{% block on_ready_js %}
 
 			{% endblock on_ready_js %}
@@ -41,6 +42,13 @@
 			// the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
 		    $('.modal-trigger').leanModal();
 			
+		});
+		$(window).load(function(){
+
+			{% block window_load_js %}
+
+			{% endblock window_load_js %}
+
 		});
 	</script>
 	
