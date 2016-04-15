@@ -10,7 +10,8 @@
   var marker;
   var marker_locations = [];
 
-  function geocodeLatLng(geocoder, lat, lng) {
+  function geocodeLatLng(geocoder, lat, lng) 
+  {
 
       var latlng = {lat: parseFloat(lat), lng: parseFloat(lng)};
       geocoder.geocode({'location': latlng}, function(results, status) {
@@ -32,7 +33,8 @@
       });
   }
 
-  function updateCurrentLocation(){
+  function updateCurrentLocation()
+  {
       // Try HTML5 geolocation.
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
@@ -90,7 +92,8 @@
       }
   }
 
-  function getCurrentLocation() {
+  function getCurrentLocation() 
+  {
       // Try HTML5 geolocation.
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) 
@@ -122,25 +125,30 @@
               streetViewControlOptions: {
                   position: google.maps.ControlPosition.RIGHT_CENTER
               },
+              draggable: true,
             });
 
+          marker = new google.maps.Marker({
+            position: new google.maps.LatLng(pos.lat, pos.lng),
+            map: map,
+            animation: google.maps.Animation.DROP
+          });
 
-          marker_locations.push(pos);
-          for(var i = 0; i < marker_locations.length; i++)
-          {
+          
 
-            marker = new google.maps.Marker({
-              position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
-              map: map,
-            });
+          //marker_locations.push(pos);
+          //for(var i = 0; i < marker_locations.length; i++)
+          //{
+
+            //marker = new google.maps.Marker({
+              //position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
+              //map: map,
+            //});
             
 
-          }
+          //}
 
-
-
-
-        $("#map").append("<div class='row'><button id='requestRepark' class='col s6 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'>Repark</button><button id='requestDropoff' class='col s6 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='updateCurrentLocation()' class='btn btn-success btn-md'>Ping Location</button></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'>Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'>Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='updateCurrentLocation()' class='btn btn-success btn-md'>Ping Location</button></div>");
 
         $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
@@ -164,7 +172,8 @@
   }
 
 
-  function displayAutocomplete(){
+  function displayAutocomplete()
+  {
       var input = document.getElementById('id_address');
       var options = {
         types: ['address'],
@@ -178,7 +187,8 @@
       })
   }
 
-  function connectSocket(){
+  function connectSocket()
+  {
 
     // socket = io('/users');
 
@@ -195,7 +205,8 @@
 
   }
 
-  function requestRepark(){
+  function requestRepark()
+  {
 
     $("#id_is_repark").val("True");
 
@@ -229,7 +240,8 @@
     return false; // avoid to execute the actual submit of the form.
   }
 
-  function requestDropoff(){
+  function requestDropoff()
+  {
 
     $("#id_is_dropoff").val("True");
 
@@ -262,6 +274,56 @@
     return false; // avoid to execute the actual submit of the form.
   }
 
+  function requestScheduledRepark()
+  {
+
+    $("#id_is_scheduled_repark").val("True");
+
+    // display the additional input fields (start_date,end_date,time_limit) in modal
+    $('#scheduledReparkPanel').openModal();
+
+    
+    $("#start_date").change(function(){
+      var start_date = $(this).val();
+      $("#id_scheduled_start_date").val(start_date);
+    });
+
+    $("#end_date").change(function(){
+      var end_date = $("#end_date").val();
+      $("#id_scheduled_end_date").val(end_date);
+    });
+
+    $("#parking_hour_limit").change(function(){
+      var parking_hour_limit = $(this).val();
+      $("#id_time_limit").val(parking_hour_limit);
+    });
+
+
+  }
+
+  function activateScheduledRepark()
+  {
+    // run AJAX post request
+    var url = 'request/valet/';
+
+    $ajax({
+      type: 'POST',
+      url: url,
+      data: $("#locationForm").serialize(),
+      success: function(data)
+      {
+        // on success,
+        // somehow put request in a queue
+        // when it is within 30 mins to the parking_exp_time
+        // send a ping to valets
+        console.log("User scheduled a repark!");
+        console.log(data);
+      },
+
+    });
+  } 
+
+
   function cancelRequest(){
     // do something
   }
@@ -273,6 +335,19 @@
     connectSocket();
     getCurrentLocation();
     displayAutocomplete();
+
+    //This line is what makes the Marker stick to the center of the map
+    marker.bindTo('position', map, 'center');
+
+    google.maps.event.addListener(map, 'dragstart', function (event) {
+      document.getElementById("latbox").value = this.getPosition().lat();
+      document.getElementById("lngbox").value = this.getPosition().lng();
+    });
+
+    google.maps.event.addListener(map, 'dragend', function (event) {
+      document.getElementById("latbox").value = this.getPosition().lat();
+      document.getElementById("lngbox").value = this.getPosition().lng();
+    });
 
     socket.on("request-accepted", function(data){
 
@@ -452,13 +527,42 @@
   <input id='id_address' type='text' name='address' placeholder='Enter your address'/>
   <input id='id_lat' type='hidden' name='lat' />
   <input id='id_lng' type='hidden' name='lng' />
+  
   <input id="id_is_repark" type='hidden' name="is_repark"/>
   <input id="id_is_dropoff" type='hidden' name="is_dropoff"/>
 
+  <!-- 
+  if scheuled repark is selected,
+  open up a modal with additional form fields:
+  - start date (default=today)
+  - end date (default=today)
+  - time
+  - location (use the floating panel address, but remind user to confirm address)
+
+  -->
+  <input id='id_scheduled_start_date' type='hidden' name='scheduled_start_date' />
+  <input id='id_scheduled_end_date' type='hidden' name='scheduled_end_date' />
+  <input id='id_time_limit' type='hidden' name='time_limit' />
+  <input id='id_is_scheduled_repark' type='hidden' name='is_scheduled_repark'/>
+  <input id='latbox' type='hidden' name='lat' />
+  <input id='lngbox' type='hidden' name='lng' />
 </form>
 
 </div>
 
+<div id="scheduledReparkPanel" class="modal" >
+  <div class="modal-content">
+    <label for="start_date">Date of Repark</label>
+    <input type='date' class='datepicker' id='start_date' placeholder='YYYY/MM/DD'/>
+    <label for="end_date">Last Day of Reparking</label>
+    <input type='date' class='datepicker' id='end_date' placeholder='YYYY/MM/DD' />
+    <label for="parking_hour_limit">Time Limit</label>
+    <input type='number' class='input-field' id='parking_hour_limit' placeholder='Enter # of hours' />
+  </div>
+  <div class="modal-footer">
+    <button id='activateScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='activateScheduledRepark()'>Submit Request</button>
+  </div>
+</div>
 
 <div id="map" class="jumbotron jumbotron-map">
 

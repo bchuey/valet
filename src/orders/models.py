@@ -30,6 +30,25 @@ class Order(models.Model):
 		abstract = True
 
 
+class ScheduledRepark(Order):
+	
+	scheduled_start_date = models.DateField() 	# default today
+	scheduled_end_date = models.DateField()
+	time_limit = models.IntegerField()
+	parking_exp_time = models.DateTimeField()
+
+	class Meta:
+
+		db_table = 'scheduled_reparks'
+
+	def __unicode__(self):
+
+		return unicode(self.id)
+
+	def __str__(self):
+
+		return str(self.id)
+
 class Repark(Order):
 
 	is_repark = models.BooleanField(default=True)

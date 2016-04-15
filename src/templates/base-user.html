@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+	<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}"> -->
 	<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/user-style.css' %}">
@@ -29,15 +29,18 @@
 	</script>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			{% block on_ready_js %}
+
+			{% endblock on_ready_js %}
 			$(".button-collapse").sideNav();
 			$(".datepicker").pickadate({
 				selectMonths: true,
 				selectYears: 30,
 			});
 			$('select').material_select();
-			{% block on_ready_js %}
-
-			{% endblock on_ready_js %}
+			// the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+		    $('.modal-trigger').leanModal();
+			
 		});
 	</script>
 	

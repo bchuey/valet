@@ -11,8 +11,8 @@ from accounts.models import User
 
 from locations.models import Location
 
-from orders.models import Repark, Dropoff
-from orders.serializers import ReparkSerializer, DropoffSerializer
+from orders.models import Repark, Dropoff, ScheduledRepark
+from orders.serializers import ReparkSerializer, DropoffSerializer, ScheduledReparkSerializer
 
 from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import detail_route, list_route, api_view
@@ -55,6 +55,7 @@ def customer_submits_valet_request(request, format=None):
 			# create Repark instance
 			repark = Repark()
 			repark.requested_by = customer
+			repark.requested_at = local_time_now
 			repark.pickup_location = location
 			repark.save()
 			request.session["repark_id"] = repark.id
@@ -69,6 +70,7 @@ def customer_submits_valet_request(request, format=None):
 			# create Dropoff instance
 			dropoff = Dropoff()
 			dropoff.requested_by = customer
+			dropoff.requested_at = local_time_now
 
 			# vehicle pickup location is the last request's dropoff location
 			dropoff.pickup_location = last_request.dropoff_location
@@ -79,6 +81,28 @@ def customer_submits_valet_request(request, format=None):
 
 			serializer = DropoffSerializer(dropoff)
 		
+		if request.POST['is_scheduled_repark']:
+
+			scheduled_repark = ScheduledRepark()
+			scheduled_repark.requested_by = customer
+			scheduled_repark.requested_at = local_time_now
+			scheduled_repark.pickup_location = location
+			scheduled_repark.scheduled_start_date = request.POST['scheduled_start_date']
+			scheduled_repark.scheduled_end_date = request.POST['scheduled_end_date']
+			scheduled_repark.time_limit = request.POST['time_limit']
+
+			"""
+			Calculate the expiration time based on when user requested repark
+			"""
+
+			# parking_exp_time = local_time_now + request.POST['time_limit']
+			# scheduled_repark.parking_exp_time = parking_exp_time
+			
+			scheduled_repark.save()
+
+			request.session["scheduled_repark_id"] = scheduled_repark.id
+
+			serializer = ScheduledRepark(scheduled_repark)
 		
 		data = serializer.data
 		print(data)
@@ -124,31 +148,32 @@ def valet_accepts_request(request):
 			repark.in_progress = True
 			repark.valet_start_pos = valet_starting_position
 			repark.save()
-
 			# set a 'repark_id' session for the valet
 			request.session["repark_id"] = repark.id
 			serializer = ReparkSerializer(repark)
 
 		if request.POST['dropoff_id']:
 
-
 			dropoff = Dropoff.objects.get(id=request.POST['dropoff_id'])
-
-			customer = dropoff.requested_by
-			
+			customer = dropoff.requested_by			
 			# grab the last repark request's dropoff location
 			latest_repark_request = customer.orders_repark_customer_related.latest('completed_at')
-
 			dropoff.reparked_by = valet
 			dropoff.in_progress = True
 			dropoff.valet_start_pos = valet_starting_position
-
 			# valet picks up car at user's last repark request's dropoff_location
 			dropoff.pickup_location = latest_repark_request.dropoff_location
-
 			dropoff.save()
 			request.session["dropoff_id"] = dropoff.id
 			serializer = DropoffSerializer(dropoff)
+
+		if request.POST['scheduled_repark_id']:
+
+			scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
+			scheduled_repark.reparked_by = valet
+			scheduled_repark.save()
+
+			# add this object to a queue here???
 
 
 		data = serializer.data
