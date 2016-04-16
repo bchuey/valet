@@ -5,6 +5,12 @@ from django.contrib.auth.models import AbstractBaseUser
 
 from accounts.managers import UserManager
 
+def upload_to(instance, filename):
+
+    url = 'accounts/{email}/profile_pic/{filename}'.format(email=instance.email,filename=filename)
+
+    return url
+
 class User(AbstractBaseUser):
     email = models.EmailField(
         verbose_name='email address',
@@ -17,6 +23,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_valet = models.BooleanField(default=False)
+    profile_pic = models.ImageField(upload_to=upload_to, blank=True)
 
     objects = UserManager()
 
