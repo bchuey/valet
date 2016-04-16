@@ -8,8 +8,9 @@ from django.utils import timezone
 from django.conf import settings
 
 from accounts.models import User
-
 from locations.models import Location
+from payments.models import PaymentMethod
+
 
 from orders.models import Repark, Dropoff, ScheduledRepark
 from orders.serializers import ReparkSerializer, DropoffSerializer, ScheduledReparkSerializer
@@ -22,6 +23,9 @@ import datetime
 import redis
 import json
 import pytz
+import stripe
+
+stripe_sk = settings.STRIPE_TEST_SECRET_KEY
 
 timezone.activate(pytz.timezone('America/Los_Angeles'))
 local_time_now = timezone.localtime(timezone.now())
@@ -291,6 +295,8 @@ def valet_returning_home(request):
 @api_view(['POST',])
 def request_completed(request):
 
+	stripe.api_key = stripe_sk
+	
 	if request.method == "POST":
 
 		if 'repark_id' in request.session:
@@ -301,6 +307,14 @@ def request_completed(request):
 			repark.is_completed = True
 			repark.completed_at = local_time_now
 			repark.save()
+
+			customer = repark.requested_by
+			customer_primary_payment_method = PaymentMethod.objects.all().filter(customer=customer).filter(is_primary=1)
+
+			# print customer_primary_payment_method[0]
+
+			customer_id = customer_primary_payment_method[0].customer_stripe_id
+			charge_customer(customer_id)
 
 			del request.session["repark_id"]
 			try:
@@ -317,6 +331,11 @@ def request_completed(request):
 			dropoff.completed_at = local_time_now
 			dropoff.save()
 
+			customer = dropoff.requested_by
+			customer_primary_payment_method = PaymentMethod.objects.all().filter(customer=customer).filter(is_primary=1)
+			customer_id = customer_primary_payment_method.customer_stripe_id
+			charge_customer(customer_id)
+
 			del request.session["dropoff_id"]
 			try:
 				print(request.session["dropoff_id"])
@@ -326,7 +345,13 @@ def request_completed(request):
 		return HttpResponseRedirect('%s'%(reverse('valet-map')))
 
 
+def charge_customer(customer_id):
 
+	stripe.Charge.create(
+	  amount=1500, # $15.00 this time
+	  currency="usd",
+	  customer=customer_id # Previously stored, then retrieved
+	)
 
 
 
