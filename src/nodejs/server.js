@@ -29,6 +29,12 @@ usr_nsp.on('connection', function(socket){
 
 	});
 
+	socket.on('new-scheduled-repark', function(data){
+		room_number = data.request_uuid;
+		socket.join(room_number);
+		valet_nsp.emit("incoming-scheduled-request", data);
+	});
+
 
 });
 

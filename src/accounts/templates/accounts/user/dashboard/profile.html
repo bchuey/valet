@@ -2,18 +2,19 @@
 
 {% block content %}
 
-<div class="row">
+<div class="row dashboard-wrapper">
 	<div class="container">
 		<div class="col s12">
 			<div class='col s8'>
-				<img src="{{ user.profile_pic.url }}" alt="" class="circle responsive-img" />
+				<img src="{{ user.profile_pic.url }}" alt="" class="circle responsive-img profile-pic-frame" />
 			</div>
-			
-			<form action="{% url 'accounts:profile' %}" method="POST" class="">
-				{% csrf_token %}
-				{{ form.as_p }}
-				<input type="submit" class="btn btn-primary btn-md" value="Update">
-			</form>
+			<div class='col s12'>
+				<form action="{% url 'accounts:profile' %}" method="POST" class="">
+					{% csrf_token %}
+					{{ form.as_p }}
+					<input type="submit" class="btn btn-primary btn-md" value="Update">
+				</form>
+			</div>
 		</div>
 	</div>
 </div>

@@ -58,6 +58,7 @@ MY_APPS = [
     'authentication',
     'locations',
     'orders',
+    'payments',
 
 ]
 
@@ -167,3 +168,9 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 
 # Custom Auth User
 AUTH_USER_MODEL = 'accounts.User'
+
+
+### STRIPE ###
+
+STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY', default='sk_test_BQokikJOvBiI2HlWgH4olfQ2')
+STRIPE_TEST_PUBLISHABLE_KEY = env('STRIPE_TEST_PUBLISHABLE_KEY', default='pk_test_6pRNASCoBOKtIshFeQd4XMUh')

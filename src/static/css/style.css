@@ -20,6 +20,16 @@
 #onscreen-message {
 	top: 40%;
 }
+
+.dashboard-wrapper {
+	margin-top: 100px;
+}
+
+.profile-pic-frame {
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+
 @media only screen and (min-width:601px){
 	#globe-btn {
 	    height: 64px;

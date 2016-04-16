@@ -566,6 +566,12 @@
 
     });
 
+    socket.on('incoming-scheduled-request', function(data){
+
+      // display some type of flash message (closable)
+
+    });
+
     socket.on("valet-assigned-to-request", function(){
       $("#floating-request-screen").hide();
       $("#actionButton").hide();

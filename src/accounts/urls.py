@@ -1,5 +1,8 @@
 
 from django.conf.urls import include, url
+
+from payments.views import PaymentMethodView
+
 from . import views
 
 app_name = 'accounts'
@@ -12,6 +15,7 @@ urlpatterns = [
 	url(r'^dashboard/vehicle/$', views.RegisteredVehicleView.as_view(), name='vehicle'),
 	url(r'^dashboard/license/$', views.DriversLicenseView.as_view(), name='license'),
 	url(r'^dashboard/insurance-policy/$', views.InsurancePolicyView.as_view(), name='insurance'),
+	url(r'^dashboard/payment-method/$', PaymentMethodView.as_view(), name='payment'),
 
 
 	url(r'^valet/dashboard/profile', views.ValetProfileView.as_view(), name='valet-profile'),

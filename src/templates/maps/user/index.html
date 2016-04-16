@@ -329,6 +329,7 @@
         // send a ping to valets
         console.log("User scheduled a repark!");
         console.log(data);
+        socket.emit('new-scheduled-repark', data);
       },
 
     });

@@ -167,11 +167,11 @@ def valet_accepts_request(request):
 			request.session["dropoff_id"] = dropoff.id
 			serializer = DropoffSerializer(dropoff)
 
-		if request.POST['scheduled_repark_id']:
+		# if request.POST['scheduled_repark_id']:
 
-			scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
-			scheduled_repark.reparked_by = valet
-			scheduled_repark.save()
+		# 	scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
+		# 	scheduled_repark.reparked_by = valet
+		# 	scheduled_repark.save()
 
 			# add this object to a queue here???
 

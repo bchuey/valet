@@ -2,7 +2,7 @@
   <nav id="mobile-nav" class="col-xs-12">
     <ul class="right hide-on-med-and-down">
       <li><a href="{% url 'accounts:profile' %}">User Account</a></li>
-      <li><a href="">Payment</a></li>
+      <li><a href="{% url 'accounts:payment' %}">Payment</a></li>
       <li><a href="">History</a></li>
       <li><a href="{% url 'accounts:vehicle' %}">Registered Vehicle</a></li>
       <li><a href="{% url 'accounts:license' %}">Drivers License</a></li>
@@ -12,9 +12,9 @@
       <li><a href="#!">Settings</a></li>
     </ul>
     <ul id="slide-out" class="side-nav">
-      <li><img src="{{ user.profile_pic.url }}" class="circle responsive-img"></li>
+      <li><img src="{{ user.profile_pic.url }}" class="circle responsive-img profile-pic-frame"></li>
       <li><a href="{% url 'accounts:profile' %}">User Account</a></li>
-      <li><a href="">Payment</a></li>
+      <li><a href="{% url 'accounts:payment' %}">Payment</a></li>
       <li><a href="">History</a></li>
       <li><a href="{% url 'accounts:vehicle' %}">Registered Vehicle</a></li>
       <li><a href="{% url 'accounts:license' %}">Drivers License</a></li>
