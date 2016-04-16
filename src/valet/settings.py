@@ -157,10 +157,13 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "static_root")
 MEDIA_URL = '/media/'
 MEDIAFILES_DIRS = [
     os.path.join(os.path.dirname(BASE_DIR), "media"),
+    os.path.join(os.path.dirname(BASE_DIR), "accounts"),
 ]
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 # print MEDIA_ROOT
-
+# print os.path.join(os.path.dirname(BASE_DIR), "media")
+# /Users/bchuey/Documents/valet_project_final/media
+# /Users/bchuey/Documents/valet_project_final/media
 
 # Custom Auth User
 AUTH_USER_MODEL = 'accounts.User'

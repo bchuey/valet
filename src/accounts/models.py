@@ -7,7 +7,7 @@ from accounts.managers import UserManager
 
 def upload_to(instance, filename):
 
-    url = 'accounts/{email}/profile_pic/{filename}'.format(email=instance.email,filename=filename)
+    url = 'accounts/{full_name}/profile_pic/{filename}'.format(full_name=instance.get_media_directory(),filename=filename)
 
     return url
 
@@ -36,7 +36,17 @@ class User(AbstractBaseUser):
 
     def get_full_name(self):
         # The user is identified by their email address
-        return self.email
+        # return self.email
+        full_name = '{first} {last}'.format(first=self.first_name,last=self.last_name)
+
+        return full_name
+
+    def get_media_directory(self):
+
+        folder_name = '{first}_{last}'.format(first=self.first_name,last=self.last_name)
+
+        return folder_name
+
 
     def get_short_name(self):
         # The user is identified by their email address

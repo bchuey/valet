@@ -90,6 +90,9 @@ class Login(View):
 	def post(self, request, *args, **kwargs):
 
 		form = self.form(request.POST)
+		context = {
+			'form': form,
+		}
 		if request.method == "POST":
 			
 			email = request.POST['email']

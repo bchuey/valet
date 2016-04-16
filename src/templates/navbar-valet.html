@@ -9,6 +9,7 @@
       <li><a href="#!">Settings</a></li>
     </ul>
     <ul id="slide-out" class="side-nav">
+      <li><img src="{{ user.profile_pic.url }}" class="circle responsive-img"></li>
       <li><a href="{% url 'accounts:valet-profile' %}">Valet Account</a></li>
       <li><a href="#!">Payment</a></li>
       <li><a href="{% url 'accounts:valet-history' %}">History</a></li>
