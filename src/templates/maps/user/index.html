@@ -9,6 +9,7 @@
   var map;
   var marker;
   var marker_locations = [];
+  var geocoder;
 
   function geocodeLatLng(geocoder, lat, lng) 
   {
@@ -23,6 +24,7 @@
             //console.log(address);
             document.getElementById('id_address').value = address;
             //return address;
+
 
           } else {
             window.alert('No results found');
@@ -134,8 +136,6 @@
             animation: google.maps.Animation.DROP
           });
 
-          
-
           //marker_locations.push(pos);
           //for(var i = 0; i < marker_locations.length; i++)
           //{
@@ -148,12 +148,22 @@
 
           //}
 
-        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'>Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'>Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='updateCurrentLocation()' class='btn btn-success btn-md'>Ping Location</button></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'>Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'>Schedule Repark</button></div><div id='loading-screen'></div>");
 
         $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
-        var geocoder = new google.maps.Geocoder;
+        geocoder = new google.maps.Geocoder;
         geocodeLatLng(geocoder, pos.lat, pos.lng);
+
+
+        //This line is what makes the Marker stick to the center of the map
+        google.maps.event.addListener(map, 'tilesloaded', function(){
+          // do something only the first time the map is loaded
+          marker.bindTo('position', map, 'center');
+
+
+        });
+
 
         }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -214,28 +224,28 @@
     var url = "request/valet/"; 
 
     $.ajax({
-           type: "POST",
-           url: url,
-           data: $("#locationForm").serialize(), // serializes the form's elements.
-           success: function(data)
-           {
+       type: "POST",
+       url: url,
+       data: $("#locationForm").serialize(), // serializes the form's elements.
+       success: function(data)
+       {
 
-               pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
-               
-               // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+           pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
+           
+           // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
 
-               $("#floating-loading-screen").fadeIn(2000, function(){
-                $("h3").fadeIn(1200);
-                $("h4").fadeIn(1200);
-               });
+           $("#floating-loading-screen").fadeIn(2000, function(){
+            $("h3").fadeIn(1200);
+            $("h4").fadeIn(1200);
+           });
 
-               $("#floating-panel").hide();
+           $("#floating-panel").hide();
 
-               $("#requestValet").removeClass("light-blue").addClass("red darken-3");
-               $("#requestValet").attr("onClick", "cancelRequest()");
-               $("#requestValet").text("Cancel Request");
-           }
-         });
+           $("#requestValet").removeClass("light-blue").addClass("red darken-3");
+           $("#requestValet").attr("onClick", "cancelRequest()");
+           $("#requestValet").text("Cancel Request");
+       }
+     });
 
     return false; // avoid to execute the actual submit of the form.
   }
@@ -248,28 +258,28 @@
     var url = "request/valet/"; 
 
     $.ajax({
-           type: "POST",
-           url: url,
-           data: $("#locationForm").serialize(), // serializes the form's elements.
-           success: function(data)
-           {
+       type: "POST",
+       url: url,
+       data: $("#locationForm").serialize(), // serializes the form's elements.
+       success: function(data)
+       {
 
-               pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
-               
-               // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+           pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
+           
+           // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
 
-               $("#floating-loading-screen").fadeIn(2000, function(){
-                $("h3").fadeIn(1200);
-                $("h4").fadeIn(1200);
-               });
+           $("#floating-loading-screen").fadeIn(2000, function(){
+            $("h3").fadeIn(1200);
+            $("h4").fadeIn(1200);
+           });
 
-               $("#floating-panel").hide();
+           $("#floating-panel").hide();
 
-               $("#requestValet").removeClass("light-blue").addClass("red darken-3");
-               $("#requestValet").attr("onClick", "cancelRequest()");
-               $("#requestValet").text("Cancel Request");
-           }
-         });
+           $("#requestValet").removeClass("light-blue").addClass("red darken-3");
+           $("#requestValet").attr("onClick", "cancelRequest()");
+           $("#requestValet").text("Cancel Request");
+       }
+     });
 
     return false; // avoid to execute the actual submit of the form.
   }
@@ -277,7 +287,6 @@
   function requestScheduledRepark()
   {
 
-    $("#id_is_scheduled_repark").val("True");
 
     // display the additional input fields (start_date,end_date,time_limit) in modal
     $('#scheduledReparkPanel').openModal();
@@ -303,6 +312,8 @@
 
   function activateScheduledRepark()
   {
+
+    $("#id_is_scheduled_repark").val("True");
     // run AJAX post request
     var url = 'request/valet/';
 
@@ -325,8 +336,8 @@
 
 
   function cancelRequest(){
-    // do something
   }
+
   {% endblock jquery %}
   
   {% block on_ready_js %}
@@ -335,6 +346,7 @@
     connectSocket();
     getCurrentLocation();
     displayAutocomplete();
+
 
     socket.on("request-accepted", function(data){
 
@@ -499,18 +511,21 @@
 
   {% endblock on_ready_js %}
   {% block window_load_js %}
-    console.log(marker);
+    
+    //console.log(marker);
 
-    //This line is what makes the Marker stick to the center of the map
-    marker.bindTo('position', map, 'center');
 
+    // Drag map, then set new lat,lng coordinates
     google.maps.event.addListener(map, 'dragend', function (event) {
 
       //console.log(map.getCenter().lat());
       //console.log(map.getCenter().lng());
 
-      document.getElementById("latbox").value = map.getCenter().lat();
-      document.getElementById("lngbox").value = map.getCenter().lng();
+      document.getElementById("id_lat").value = map.getCenter().lat();
+      document.getElementById("id_lng").value = map.getCenter().lng();
+
+      geocoder = new google.maps.Geocoder;
+      geocodeLatLng(geocoder, map.getCenter().lat(), map.getCenter().lng());
 
     });
   {% endblock window_load_js %}
@@ -546,8 +561,6 @@
   <input id='id_scheduled_end_date' type='hidden' name='scheduled_end_date' />
   <input id='id_time_limit' type='hidden' name='time_limit' />
   <input id='id_is_scheduled_repark' type='hidden' name='is_scheduled_repark'/>
-  <input id='latbox' type='hidden' name='lat' />
-  <input id='lngbox' type='hidden' name='lng' />
 </form>
 
 </div>

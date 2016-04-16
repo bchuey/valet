@@ -19,15 +19,11 @@
 	
 	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
-
-	
 	<script type="text/javascript">
 		{% block jquery %}
 
 
 		{% endblock jquery %}
-	</script>
-	<script type="text/javascript">
 		$(document).ready(function(){
 			
 			{% block on_ready_js %}

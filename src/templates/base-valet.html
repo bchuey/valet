@@ -20,20 +20,24 @@
 	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
 
-
 	<script type="text/javascript">
-	{% block jquery %}
+		{% block jquery %}
 
 
-	{% endblock jquery %}
-	</script>
-	<script type="text/javascript">
+		{% endblock jquery %}
 		$(document).ready(function(){
 			$(".button-collapse").sideNav();
 			
 			{% block on_ready_js %}
 
 			{% endblock on_ready_js %}
+		});
+		$(window).load(function(){
+
+			{% block window_load_js %}
+
+			{% endblock window_load_js %}
+
 		});
 	</script>
 	
