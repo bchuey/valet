@@ -1,6 +1,6 @@
 {% extends 'base-valet.html' %}
 {% block jsblock %}
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5rDIK5VhVda2tXaw-h28AvAObJhVeVfY&libraries=places"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8&libraries=places"></script>
 
   {% load staticfiles %}
   <script type="text/javascript" src="{% static 'js/csrf_exempt.js' %}"></script>
@@ -11,13 +11,16 @@
 
 {% block jquery %}
 
-
+  var apiKey = 'AIzaSyC5rDIK5VhVda2tXaw-h28AvAObJhVeVfY';
   var socket;
   var map;
   var marker;
   var marker_locations = [];
   var directionsService;
   var directionsDisplay;
+  var placeIdArray = [];
+  var polylines = [];
+  var snappedCoordinates = [];
 
   function geocodeLatLng(geocoder, lat, lng) {
 
@@ -275,6 +278,72 @@
 
           $("#actionButton").text("Dropped Off");
           $("#actionButton").attr("onClick", "dropoff()");
+        }
+
+
+        // draw colored polylines to indicate parking hour limit in areas
+
+        var flightPlanCoordinates = [
+          {lat: 37.71686774498488, lng: -122.4396457362152},
+          {lat: 37.71805591205066, lng: -122.4387445139862},
+        ];
+
+        //var flightPath = new google.maps.Polyline({
+          //path: flightPlanCoordinates,
+          //geodesic: true,
+          //strokeColor: '#FF0000',
+          //strokeOpacity: 1.0,
+          //strokeWeight: 2
+        //});
+
+        //flightPath.setMap(map);
+
+        runSnapToRoad(flightPlanCoordinates);
+
+        function runSnapToRoad(path) {
+          var pathValues = [];
+          for (var i = 0; i < path.length; i++) {
+            var coord = path[i].lat + ',' + path[i].lng;
+            pathValues.push(coord);
+
+          }
+
+          console.log(pathValues);
+
+          $.get('https://roads.googleapis.com/v1/snapToRoads', {
+            interpolate: true,
+            key: apiKey,
+            path: pathValues.join('|')
+          }, function(data) {
+            processSnapToRoadResponse(data);
+            drawSnappedPolyline();
+
+          });
+        }
+
+        // Store snapped polyline returned by the snap-to-road method.
+        function processSnapToRoadResponse(data) {
+          snappedCoordinates = [];
+          placeIdArray = [];
+          for (var i = 0; i < data.snappedPoints.length; i++) {
+            var latlng = new google.maps.LatLng(
+                data.snappedPoints[i].location.latitude,
+                data.snappedPoints[i].location.longitude);
+            snappedCoordinates.push(latlng);
+            placeIdArray.push(data.snappedPoints[i].placeId);
+          }
+        }
+
+        // Draws the snapped polyline (after processing snap-to-road response).
+        function drawSnappedPolyline() {
+          var snappedPolyline = new google.maps.Polyline({
+            path: snappedCoordinates,
+            strokeColor: 'black',
+            strokeWeight: 3
+          });
+
+          snappedPolyline.setMap(map);
+          polylines.push(snappedPolyline);
         }
         
       }

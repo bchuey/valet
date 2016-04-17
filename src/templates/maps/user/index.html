@@ -1,6 +1,6 @@
 {% extends 'base-user.html' %}
 {% block jsblock %}
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5rDIK5VhVda2tXaw-h28AvAObJhVeVfY&libraries=places"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8&libraries=places"></script>
   <script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
 {% endblock %}
 
@@ -156,6 +156,7 @@
         geocodeLatLng(geocoder, pos.lat, pos.lng);
 
 
+        //console.log(marker);
         //This line is what makes the Marker stick to the center of the map
         google.maps.event.addListener(map, 'tilesloaded', function(){
           // do something only the first time the map is loaded
@@ -444,7 +445,9 @@
 
 
     socket.on("vehicle-new-location", function(data){
-      alert("Your vehicle's new location: " + data.dropoff_location.full_address);
+
+      var new_loc_msg = "Your vehicle's new location: ";
+      new_loc_msg += data.dropoff_location.full_address;
 
       // do something else here for the user???
       console.log("your vehicle's new location: ");
@@ -484,6 +487,10 @@
 
       }
 
+      Materialize.toast(new_loc_msg, 3000, 'rounded');
+
+      // redirect user to '/user'
+      window.location.href = '/user';
 
 
     });
@@ -512,15 +519,12 @@
 
   {% endblock on_ready_js %}
   {% block window_load_js %}
-    
-    //console.log(marker);
-
 
     // Drag map, then set new lat,lng coordinates
     google.maps.event.addListener(map, 'dragend', function (event) {
 
-      //console.log(map.getCenter().lat());
-      //console.log(map.getCenter().lng());
+      console.log(map.getCenter().lat());
+      console.log(map.getCenter().lng());
 
       document.getElementById("id_lat").value = map.getCenter().lat();
       document.getElementById("id_lng").value = map.getCenter().lng();
