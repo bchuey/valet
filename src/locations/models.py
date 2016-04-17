@@ -26,7 +26,7 @@ class IntersectionLatLng(models.Model):
 
 	lat = models.CharField(verbose_name='latitude', max_length=255, null=True, blank=True)
 	lng = models.CharField(verbose_name='longitude', max_length=255, null=True, blank=True)
-	parking_section = models.ForeignKey('ParkingSection', related_name='latlngs')
+	parking_section = models.ForeignKey('ParkingSection', related_name='coordinates')
 
 	class Meta:
 

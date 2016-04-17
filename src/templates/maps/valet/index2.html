@@ -289,18 +289,22 @@
 
         // draw colored polylines to indicate parking hour limit in areas
 
-        var limitedParkingCoordinates = output.prkg_section.coordinates;
+        var limitedParkingCoordinates = [
+          {lat: 37.71686774498488, lng: -122.4396457362152},
+          {lat: 37.71805591205066, lng: -122.4387445139862},
+          {lat: 37.71744073352893, lng: -122.43927403555143},
+        ];
+
+        //var limitedParkingCoordinates = output.prkg_section.coordinates;
         console.log(limitedParkingCoordinates);
 
-
-        // only works if you give it 2 latlng values, and no more
         runSnapToRoad(limitedParkingCoordinates);
 
         function runSnapToRoad(path) {
           var pathValues = [];
           for (var i = 0; i < path.length; i++) {
             var coord = path[i].lat + ',' + path[i].lng;
-            //console.log(coord);
+            console.log(coord);
             pathValues.push(coord);
 
           }
@@ -314,6 +318,7 @@
           }, function(data) {
             processSnapToRoadResponse(data);
             drawSnappedPolyline();
+            console.log("Should have snapped to road and drawn line");
 
           });
         }
