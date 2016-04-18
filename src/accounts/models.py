@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 from accounts.managers import UserManager
 
@@ -24,6 +26,8 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_valet = models.BooleanField(default=False)
     profile_pic = models.ImageField(upload_to=upload_to, blank=True)
+    # drivers_license = generic.GenericRelation('DriversLicense')
+
 
     objects = UserManager()
 
@@ -70,6 +74,26 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+# class Valet(User):
+
+#     is_valet = models.BooleanField(default=True)
+#     is_available = models.BooleanField(default=True)
+#     drivers_license = GenericRelation('DriversLicense')
+#     class Meta:
+
+#         db_table = 'valets'
+
+#     def __unicode__(self):
+
+#         return unicode(self.email)
+
+#     def __str__(self):
+
+#         return self.email
+
+
 
 
 
@@ -150,6 +174,34 @@ class DriversLicense(models.Model):
     def __str__(self):
 
         return self.license_id_number
+
+"""
+Using ContentType framework to create relationship between both User and Valet
+"""
+# class DriversLicense(models.Model):
+#     # owned_by = models.ForeignKey(User)
+#     legal_first_name = models.CharField(max_length=60)
+#     legal_last_name = models.CharField(max_length=60)
+#     date_of_birth = models.DateField()
+#     license_id_number = models.CharField(max_length=60)
+#     registered_city = models.CharField(max_length=100)
+#     registered_state = models.CharField(max_length=25)
+#     content_type = models.ForeignKey(ContentType)
+#     object_id = models.PositiveIntegerField()
+#     content_object = GenericForiegnKey()
+
+#     class Meta:
+
+#         db_table = 'driver_licenses'
+
+#     def __unicode__(self):
+
+#         return self.license_id_number
+
+#     def __str__(self):
+
+#         return self.license_id_number
+
 
 
 class InsurancePolicy(models.Model):

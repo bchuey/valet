@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from accounts.models import User
 
@@ -36,10 +37,21 @@ stripe_sk = settings.STRIPE_TEST_SECRET_KEY
 timezone.activate(pytz.timezone('America/Los_Angeles'))
 local_time_now = timezone.localtime(timezone.now())
 
+
+# ==================
+# Decorators
+# ==================
+def is_valet_check(user):
+
+	return user.is_valet
+
+
+
 # =================
 # User FBVs
 # =================
 @api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
 def customer_submits_valet_request(request, format=None):
 
 	customer = request.user
@@ -120,6 +132,7 @@ def customer_submits_valet_request(request, format=None):
 
 
 @api_view(['GET',])
+@login_required(login_url=settings.LOGIN_URL)
 def repark_closed(request):
 
 	if request.method == "GET":
@@ -137,6 +150,7 @@ def repark_closed(request):
 
 
 @api_view(['GET',])
+@login_required(login_url=settings.LOGIN_URL)
 def retrieve_latest_request(request):
 
 	user = request.user
@@ -160,6 +174,8 @@ def retrieve_latest_request(request):
 # Valet FBVs
 # =================
 @api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
+@user_passes_test(is_valet_check)
 def valet_accepts_request(request):
 
 	if request.method == "POST":
@@ -213,6 +229,8 @@ def valet_accepts_request(request):
 
 
 @api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
+@user_passes_test(is_valet_check)
 def valet_arrives_at_vehicle(request):
 
 	valet = request.user
@@ -240,6 +258,8 @@ def valet_arrives_at_vehicle(request):
 		
 
 @api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
+@user_passes_test(is_valet_check)
 def valet_on_route(request):
 
 	valet = request.user
@@ -297,6 +317,8 @@ def valet_on_route(request):
 
 
 @api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
+@user_passes_test(is_valet_check)
 def valet_drops_vehicle_at_new_location(request):
 
 	if request.method == "POST":
@@ -331,6 +353,8 @@ def valet_drops_vehicle_at_new_location(request):
 		return Response(data, template_name='maps/valet/index.html')
 
 @api_view(['GET',])
+@login_required(login_url=settings.LOGIN_URL)
+@user_passes_test(is_valet_check)
 def valet_returning_home(request):
 
 	if request.method == "GET":
@@ -349,6 +373,8 @@ def valet_returning_home(request):
 
 
 @api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
+@user_passes_test(is_valet_check)
 def request_completed(request):
 
 	stripe.api_key = stripe_sk
@@ -401,6 +427,9 @@ def request_completed(request):
 		return HttpResponseRedirect('%s'%(reverse('valet-map')))
 
 
+# ==============
+# Stripe payments
+# ==============
 def charge_customer(customer_id):
 
 	stripe.Charge.create(
@@ -408,6 +437,30 @@ def charge_customer(customer_id):
 	  currency="usd",
 	  customer=customer_id # Previously stored, then retrieved
 	)
+
+
+# ===============================
+# Assign valet a scheduled repark
+# ===============================
+def retrieve_valet_location(request):
+
+	pass
+
+"""
+1.) Query valets and filter is_available (backend) <=====> Ping valet locations (client)
+3.) Calculate distance and travel time (backend)
+4.) Send message request to top 3 valets (client)
+5.) Repeat 'accept-request' cycle 
+6.) Once accept, move on to next one
+
+"""
+def assign_valet_to_scheduled_repark(request):
+
+	pass
+
+
+
+
 
 
 

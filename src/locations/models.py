@@ -44,7 +44,7 @@ class IntersectionLatLng(models.Model):
 
 class ParkingSection(models.Model):
 
-	label = models.CharField(max_length=1, choices=PARKING_ZONES)
+	label = models.CharField(max_length=2, choices=PARKING_ZONES)
 	time_limit = models.IntegerField()
 	# accepted_permit = models.ForeignKey(ParkingPermit)
 
