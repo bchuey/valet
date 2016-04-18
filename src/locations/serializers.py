@@ -16,7 +16,7 @@ class IntersectionLatLngSerializer(serializers.ModelSerializer):
 	class Meta:
 
 		model = IntersectionLatLng
-		fields = ('id','lat','lng','parking_section')
+		fields = ('lat','lng')
 		depth = 1
 
 class ParkingSectionSerializer(serializers.ModelSerializer):

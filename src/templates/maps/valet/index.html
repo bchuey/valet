@@ -272,8 +272,9 @@
 
         var output = JSON.parse(data);
         //console.log(output);
-        //console.log(output.prkg_section);
-        //console.log(output.prkg_section.coordinates);
+        //console.log(output.coordinates);
+        //console.log('array of coordinates');
+        //console.log(output.coordinates);
 
         socket.emit("valet-enroute");
         if(output.order.is_repark)
@@ -286,62 +287,42 @@
           $("#actionButton").attr("onClick", "dropoff()");
         }
 
+         var flightPlanCoordinates = [
+          {lat: 37.772, lng: -122.214},
+          {lat: 21.291, lng: -157.821},
+          {lat: -18.142, lng: 178.431},
+          {lat: -27.467, lng: 153.027}
+        ];
 
-        // draw colored polylines to indicate parking hour limit in areas
+        console.log(flightPlanCoordinates);
 
-        var limitedParkingCoordinates = output.prkg_section.coordinates;
-        console.log(limitedParkingCoordinates);
+        var limitedParkingCoordinates = output.coordinates;
 
+        //console.log(limitedParkingCoordinates);
 
-        // only works if you give it 2 latlng values, and no more
-        runSnapToRoad(limitedParkingCoordinates);
+        var polylineCoordinates = [];
 
-        function runSnapToRoad(path) {
-          var pathValues = [];
-          for (var i = 0; i < path.length; i++) {
-            var coord = path[i].lat + ',' + path[i].lng;
-            //console.log(coord);
-            pathValues.push(coord);
+        for (var i = 0; i < limitedParkingCoordinates.length; i++)
+        {
+          var coord = {};
+          coord['lat'] = parseFloat(limitedParkingCoordinates[i].lat);
+          coord['lng'] = parseFloat(limitedParkingCoordinates[i].lng);
 
-          }
-
-          console.log(pathValues.join('|'));
-
-          $.get('https://roads.googleapis.com/v1/snapToRoads', {
-            interpolate: true,
-            key: apiKey,
-            path: pathValues.join('|')
-          }, function(data) {
-            processSnapToRoadResponse(data);
-            drawSnappedPolyline();
-
-          });
+          polylineCoordinates.push(coord);
         }
 
-        // Store snapped polyline returned by the snap-to-road method.
-        function processSnapToRoadResponse(data) {
-          snappedCoordinates = [];
-          placeIdArray = [];
-          for (var i = 0; i < data.snappedPoints.length; i++) {
-            var latlng = new google.maps.LatLng(
-                data.snappedPoints[i].location.latitude,
-                data.snappedPoints[i].location.longitude);
-            snappedCoordinates.push(latlng);
-            placeIdArray.push(data.snappedPoints[i].placeId);
-          }
-        }
+        console.log(polylineCoordinates);
 
-        // Draws the snapped polyline (after processing snap-to-road response).
-        function drawSnappedPolyline() {
-          var snappedPolyline = new google.maps.Polyline({
-            path: snappedCoordinates,
-            strokeColor: 'black',
-            strokeWeight: 3
-          });
 
-          snappedPolyline.setMap(map);
-          polylines.push(snappedPolyline);
-        }
+        var sectionBoundary = new google.maps.Polyline({
+          path: polylineCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+
+        sectionBoundary.setMap(map);
         
       }
     });
