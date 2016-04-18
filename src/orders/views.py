@@ -65,7 +65,6 @@ def customer_submits_valet_request(request, format=None):
 			# create Repark instance
 			repark = Repark()
 			repark.requested_by = customer
-			repark.requested_at = local_time_now
 			repark.pickup_location = location
 			repark.save()
 			request.session["repark_id"] = repark.id
@@ -80,7 +79,6 @@ def customer_submits_valet_request(request, format=None):
 			# create Dropoff instance
 			dropoff = Dropoff()
 			dropoff.requested_by = customer
-			dropoff.requested_at = local_time_now
 
 			# vehicle pickup location is the last request's dropoff location
 			dropoff.pickup_location = last_request.dropoff_location
@@ -95,7 +93,6 @@ def customer_submits_valet_request(request, format=None):
 
 			scheduled_repark = ScheduledRepark()
 			scheduled_repark.requested_by = customer
-			scheduled_repark.requested_at = local_time_now
 			scheduled_repark.pickup_location = location
 			scheduled_repark.scheduled_start_date = request.POST['scheduled_start_date']
 			scheduled_repark.scheduled_end_date = request.POST['scheduled_end_date']
@@ -105,15 +102,17 @@ def customer_submits_valet_request(request, format=None):
 			Calculate the expiration time based on when user requested repark
 			"""
 
-			# parking_exp_time = local_time_now + request.POST['time_limit']
-			# scheduled_repark.parking_exp_time = parking_exp_time
-			
+			parking_exp_time = local_time_now + datetime.timedelta(hours=int(scheduled_repark.time_limit))
+			scheduled_repark.parking_exp_time = parking_exp_time
+
+
 			scheduled_repark.save()
 
 			request.session["scheduled_repark_id"] = scheduled_repark.id
 
-			serializer = ScheduledRepark(scheduled_repark)
-		
+			serializer = ScheduledReparkSerializer(scheduled_repark)
+
+
 		data = serializer.data
 		print(data)
 

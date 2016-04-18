@@ -318,7 +318,7 @@
     // run AJAX post request
     var url = 'request/valet/';
 
-    $ajax({
+    $.ajax({
       type: 'POST',
       url: url,
       data: $("#locationForm").serialize(),
@@ -331,6 +331,18 @@
         console.log("User scheduled a repark!");
         console.log(data);
         socket.emit('new-scheduled-repark', data);
+
+        // reset the form
+        $("#start_date").val("");
+        $("#end_date").val("");
+        $("#parking_hour_limit").val("");
+
+        // make it disappear
+        $("#scheduledReparkPanel").closeModal();
+
+        // show confirmation message
+        Materialize.toast('Your request has been scheduled.', 8000, 'rounded')
+
       },
 
     });
@@ -358,6 +370,8 @@
         document.getElementById('id_address').value = address;
 
         console.log(address);
+        var msg = 'Your vehicle was last parked at: ' + address;
+        Materialize.toast(msg, 6000, 'rounded');
 
         // run directions service???
 
@@ -608,9 +622,9 @@
 <div id="scheduledReparkPanel" class="modal" >
   <div class="modal-content">
     <label for="start_date">Date of Repark</label>
-    <input type='date' class='datepicker' id='start_date' placeholder='YYYY/MM/DD'/>
+    <input type='date' class='datepicker' id='start_date' placeholder='YYYY-MM-DD'/>
     <label for="end_date">Last Day of Reparking</label>
-    <input type='date' class='datepicker' id='end_date' placeholder='YYYY/MM/DD' />
+    <input type='date' class='datepicker' id='end_date' placeholder='YYYY-MM-DD' />
     <label for="parking_hour_limit">Time Limit</label>
     <input type='number' class='input-field' id='parking_hour_limit' placeholder='Enter # of hours' />
   </div>

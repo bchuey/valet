@@ -587,6 +587,7 @@
     socket.on('incoming-scheduled-request', function(data){
 
       // display some type of flash message (closable)
+      Materialize.toast('Customer has scheduled a repark.', 3000, 'rounded');
 
     });
 
