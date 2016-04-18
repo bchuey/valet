@@ -246,6 +246,10 @@ def valet_on_route(request):
 		coordinates = IntersectionLatLngSerializer(coordinates,many=True)
 		coordinates = coordinates.data
 
+		print '========'
+		print 'Coordinates of boundary:'
+		print coordinates
+		print '========'
 
 		"""
 		Grab street lat,lng and use snapToRoad to show parking time limits.

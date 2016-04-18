@@ -270,11 +270,8 @@
       success: function(data)
       {
 
+
         var output = JSON.parse(data);
-        //console.log(output);
-        //console.log(output.coordinates);
-        //console.log('array of coordinates');
-        //console.log(output.coordinates);
 
         socket.emit("valet-enroute");
         if(output.order.is_repark)
@@ -287,35 +284,11 @@
           $("#actionButton").attr("onClick", "dropoff()");
         }
 
-         var flightPlanCoordinates = [
-          {lat: 37.772, lng: -122.214},
-          {lat: 21.291, lng: -157.821},
-          {lat: -18.142, lng: 178.431},
-          {lat: -27.467, lng: 153.027}
-        ];
-
-        console.log(flightPlanCoordinates);
-
         var limitedParkingCoordinates = output.coordinates;
-
-        //console.log(limitedParkingCoordinates);
-
-        var polylineCoordinates = [];
-
-        for (var i = 0; i < limitedParkingCoordinates.length; i++)
-        {
-          var coord = {};
-          coord['lat'] = parseFloat(limitedParkingCoordinates[i].lat);
-          coord['lng'] = parseFloat(limitedParkingCoordinates[i].lng);
-
-          polylineCoordinates.push(coord);
-        }
-
-        console.log(polylineCoordinates);
 
 
         var sectionBoundary = new google.maps.Polyline({
-          path: polylineCoordinates,
+          path: limitedParkingCoordinates,
           geodesic: true,
           strokeColor: '#FF0000',
           strokeOpacity: 1.0,
