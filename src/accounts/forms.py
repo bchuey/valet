@@ -58,7 +58,7 @@ class RegisteredVehicleForm(forms.ModelForm):
 
     class Meta:
         model = RegisteredVehicle
-        fields = ('make','model','color','license_plate_number','updated_registration_tags')
+        fields = ('make','model','color','license_plate_number','updated_registration_tags','parking_permit_zone')
 
 # =================
 # Drivers License

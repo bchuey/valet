@@ -118,6 +118,7 @@ class RegisteredVehicleView(LoginRequiredMixin, View):
 			vehicle.color = form.cleaned_data.get('color')
 			vehicle.license_plate_number = form.cleaned_data.get('license_plate_number')
 			vehicle.updated_registration_tags = form.cleaned_data.get('updated_registration_tags')
+			vehicle.parking_permit_zone = form.cleaned_data.get('parking_permit_zone')
 			vehicle.save()
 
 			return HttpResponseRedirect('%s'%(reverse('accounts:vehicle')))

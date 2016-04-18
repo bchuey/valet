@@ -115,7 +115,7 @@ class RegisteredVehicle(models.Model):
     year = models.CharField(max_length=4,null=True,blank=True)
     license_plate_number = models.CharField(max_length=10)
     updated_registration_tags = models.BooleanField(default=True)
-    parking_permit_zone = models.CharField(max_length=2, choices=PARKING_ZONES)
+    parking_permit_zone = models.CharField(max_length=2, choices=PARKING_ZONES, blank=True)
 
     class Meta:
 

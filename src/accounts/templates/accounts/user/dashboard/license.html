@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row dashboard-wrapper">
 	<div class="container">
-		<div class="col-xs-12">
+		<div class="col s12">
 			<form action="{% url 'accounts:license' %}" method="POST" class="">
 				{% csrf_token %}
 				{{ form.as_p }}

@@ -135,6 +135,28 @@ def repark_closed(request):
 		return Response(data, template_name='maps/user/index.html')
 
 
+
+
+@api_view(['GET',])
+def retrieve_latest_request(request):
+
+	user = request.user
+
+	if request.method == "GET":
+
+		latest_request = Repark.objects.all().filter(requested_by=user).latest('completed_at')
+
+		if latest_request:
+			serializer = ReparkSerializer(latest_request)
+			data = serializer.data
+
+			return Response(data, template_name='maps/user/index.html')
+		else:
+
+			data = "Oops, you don't have any request."
+			return Response(data, template_name='maps/user/index.html')
+
+
 # =================
 # Valet FBVs
 # =================
@@ -231,6 +253,8 @@ def valet_on_route(request):
 			repark.enroute_at = local_time_now
 			repark.save()
 
+			user = repark.requested_by
+
 			serializer = ReparkSerializer(repark)
 
 		if 'dropoff_id' in request.session:
@@ -238,21 +262,27 @@ def valet_on_route(request):
 			dropoff = Dropoff.objects.get(id=request.session["dropoff_id"])
 			dropoff.enroute_at = local_time_now
 			dropoff.save()
+
+			user = dropoff.requested_by
+
 			serializer = DropoffSerializer(dropoff)
 
-		# based on User's parking permit
-		# query respective ParkingSection
 
-		"""
-		- queries specific parking zone
-		- grabs boundary coordinates
-		- use coordinates to draw boundary on client map
-		"""
-		prkg_section = ParkingSection.objects.all().filter(label='A')
+		if user.parking_permit_zone:
+			# based on User's parking permit
+			# query respective ParkingSection
 
-		coordinates = prkg_section[0].coordinates.all()
-		coordinates = IntersectionLatLngSerializer(coordinates,many=True)
-		coordinates = coordinates.data
+			"""
+			- queries specific parking zone
+			- grabs boundary coordinates
+			- use coordinates to draw boundary on client map
+			"""
+			# prkg_section = ParkingSection.objects.all().filter(label='A')
+			prkg_section = ParkingSection.objects.all().filter(label=user.parking_permit_zone)
+
+			coordinates = prkg_section[0].coordinates.all()
+			coordinates = IntersectionLatLngSerializer(coordinates,many=True)
+			coordinates = coordinates.data
 
 		data = serializer.data
 

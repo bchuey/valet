@@ -9,12 +9,14 @@
 }
 
 
-#globe-btn {
+#top-menu-btn {
     height: 64px;
     line-height: 60px;
     float: left;
     position: relative;
     z-index: 1;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 #onscreen-message {

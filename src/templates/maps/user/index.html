@@ -148,7 +148,7 @@
 
           //}
 
-        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'>Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'>Schedule Repark</button></div><div id='loading-screen'></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div>");
 
         $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
@@ -338,6 +338,29 @@
 
 
   function cancelRequest(){
+  }
+
+  function getLatestRequest()
+  {
+    var url = 'request/latest/';
+    $ajax({
+      type: 'POST',
+      url: url,
+      data: null,
+      success: function(data)
+      {
+
+        // retrieve latest request
+        // set the floating panel to contain latest dropoff location
+        address = data.dropoff_location.full_address;
+        document.getElementById('id_address').value = address;
+
+
+        // run directions service???
+
+      },
+
+    });
   }
 
   {% endblock jquery %}

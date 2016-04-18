@@ -27,7 +27,8 @@ from orders.views import (
     valet_on_route,
     valet_drops_vehicle_at_new_location,
     valet_returning_home,
-    request_completed
+    request_completed,
+    retrieve_latest_request,
 )
 
 from . import views
@@ -45,6 +46,7 @@ urlpatterns = [
 
     # requests
     url(r'^user/request/valet/$', customer_submits_valet_request, name='request-valet'),
+    url(r'^user/request/latest/$', retrieve_latest_request, name='latest-request'),
     url(r'^valet/request/accept/$', valet_accepts_request, name='accept-request'),
     url(r'^valet/request/arrived/$', valet_arrives_at_vehicle, name='arrived'),
     url(r'^valet/request/enroute/$', valet_on_route, name='enroute'),
