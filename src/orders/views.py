@@ -240,28 +240,22 @@ def valet_on_route(request):
 			dropoff.save()
 			serializer = DropoffSerializer(dropoff)
 
+		# based on User's parking permit
+		# query respective ParkingSection
+
+		"""
+		- queries specific parking zone
+		- grabs boundary coordinates
+		- use coordinates to draw boundary on client map
+		"""
 		prkg_section = ParkingSection.objects.all().filter(label='A')
 
 		coordinates = prkg_section[0].coordinates.all()
 		coordinates = IntersectionLatLngSerializer(coordinates,many=True)
 		coordinates = coordinates.data
 
-		print '========'
-		print 'Coordinates of boundary:'
-		print coordinates
-		print '========'
-
-		"""
-		Grab street lat,lng and use snapToRoad to show parking time limits.
-		Somehow, don't make it follow the road 'driving directions' path
-		"""
-		# prkg_section = prkg_section[0]
-		# prkg_section = ParkingSectionSerializer(prkg_section)
-		# prkg_section = prkg_section.data
-
 		data = serializer.data
 
-		# context = json.dumps({'order':data, 'prkg_section':prkg_section})
 		context = json.dumps({'order':data, 'coordinates':coordinates})
 
 		return Response(context, template_name='maps/valet/index.html')

@@ -72,6 +72,41 @@ class User(AbstractBaseUser):
         return self.is_admin
 
 
+
+PARKING_ZONES = (
+
+    ('A','A'),
+    ('B','B'),
+    ('BB','BB'),
+    ('C','C'),
+    ('CC','CC'),
+    ('D','D'),
+    ('DD','DD'),
+    ('E','E'),
+    ('F','F'),
+    ('G','G'),
+    ('H','H'),
+    ('I','I'),
+    ('J','J'),
+    ('K','K'),
+    ('L','L'),
+    ('M','M'),
+    ('N','N'),
+    ('O','O'),
+    ('P','P'),
+    ('Q','Q'),
+    ('R','R'),
+    ('S','S'),
+    ('T','T'),
+    ('U','U'),
+    ('V','V'),
+    ('W','W'),
+    ('X','X'),
+    ('Y','Y'),
+    ('Z','Z'),
+)
+
+
 class RegisteredVehicle(models.Model):
     owned_by = models.ForeignKey(User)
     make = models.CharField(max_length=60) # could be a dropdown list
@@ -80,6 +115,7 @@ class RegisteredVehicle(models.Model):
     year = models.CharField(max_length=4,null=True,blank=True)
     license_plate_number = models.CharField(max_length=10)
     updated_registration_tags = models.BooleanField(default=True)
+    parking_permit_zone = models.CharField(max_length=2, choices=PARKING_ZONES)
 
     class Meta:
 

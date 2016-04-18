@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from accounts.models import PARKING_ZONES
 # Create your models here.
 class Location(models.Model):
 	
@@ -40,19 +41,10 @@ class IntersectionLatLng(models.Model):
 
 		return str(self.id)
 
-SECTION_CHOICES = (
-
-	('A', 'A'),
-	('B', 'B'),
-	('C', 'C'),
-	('D', 'D'),
-	('E', 'E'),
-
-)
 
 class ParkingSection(models.Model):
 
-	label = models.CharField(max_length=1, choices=SECTION_CHOICES)
+	label = models.CharField(max_length=1, choices=PARKING_ZONES)
 	time_limit = models.IntegerField()
 	# accepted_permit = models.ForeignKey(ParkingPermit)
 

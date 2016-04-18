@@ -240,7 +240,6 @@
 
   function arrived(){
 
-    // need to update 'picked_up_at' field
     var url = "request/arrived/";
 
     $.ajax({
@@ -285,7 +284,6 @@
         }
 
         var limitedParkingCoordinates = output.coordinates;
-
 
         var sectionBoundary = new google.maps.Polyline({
           path: limitedParkingCoordinates,
