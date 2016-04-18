@@ -334,6 +334,8 @@
       },
 
     });
+
+    return false;
   } 
 
 
@@ -344,7 +346,7 @@
   {
     var url = 'request/latest/';
     $ajax({
-      type: 'POST',
+      type: 'GET',
       url: url,
       data: null,
       success: function(data)
@@ -355,13 +357,22 @@
         address = data.dropoff_location.full_address;
         document.getElementById('id_address').value = address;
 
+        console.log(address);
 
         // run directions service???
 
       },
 
     });
+
+    return false; 
   }
+
+
+  $("#latestRequest").click(function(){
+      getLatestRequest();
+      return false;
+  });
 
   {% endblock jquery %}
   
@@ -372,6 +383,7 @@
     getCurrentLocation();
     displayAutocomplete();
 
+    
 
     socket.on("request-accepted", function(data){
 

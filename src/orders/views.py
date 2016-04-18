@@ -267,8 +267,10 @@ def valet_on_route(request):
 
 			serializer = DropoffSerializer(dropoff)
 
+		data = serializer.data
 
-		if user.parking_permit_zone:
+
+		if user.registered_vehicle.all()[0].parking_permit_zone:
 			# based on User's parking permit
 			# query respective ParkingSection
 
@@ -277,16 +279,20 @@ def valet_on_route(request):
 			- grabs boundary coordinates
 			- use coordinates to draw boundary on client map
 			"""
+
+			parking_permit_zone = user.registered_vehicle.all()[0].parking_permit_zone
 			# prkg_section = ParkingSection.objects.all().filter(label='A')
-			prkg_section = ParkingSection.objects.all().filter(label=user.parking_permit_zone)
+			prkg_section = ParkingSection.objects.all().filter(label=parking_permit_zone)
 
 			coordinates = prkg_section[0].coordinates.all()
 			coordinates = IntersectionLatLngSerializer(coordinates,many=True)
 			coordinates = coordinates.data
 
-		data = serializer.data
+			context = json.dumps({'order':data, 'coordinates':coordinates})
 
-		context = json.dumps({'order':data, 'coordinates':coordinates})
+		else:
+
+			context = data
 
 		return Response(context, template_name='maps/valet/index.html')
 

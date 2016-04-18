@@ -108,7 +108,7 @@ PARKING_ZONES = (
 
 
 class RegisteredVehicle(models.Model):
-    owned_by = models.ForeignKey(User)
+    owned_by = models.ForeignKey(User, related_name='registered_vehicle')
     make = models.CharField(max_length=60) # could be a dropdown list
     model = models.CharField(max_length=60)
     color = models.CharField(max_length=60)

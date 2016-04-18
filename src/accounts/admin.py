@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from accounts.models import User
+from accounts.models import User, RegisteredVehicle
 from accounts.forms import UserCreationForm, UserChangeForm
 # Register your models here.
 
@@ -35,6 +35,8 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
+
+admin.site.register(RegisteredVehicle)
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)
 # ... and, since we're not using Django's built-in permissions,
