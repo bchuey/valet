@@ -89,7 +89,45 @@ valet_nsp.on('connection', function(socket){
 		usr_nsp.to(room_number).emit("requested-repark-completed");
 	})
 
+
+	// put valet in room for scheduled repark request
+	socket.on("valet-join-room", function(data){
+		room_number = data.request_uuid;
+		socket.join(room_number);
+		valet_nsp.to(room_number).emit("activate-directions-service", data);
+	})
+
 });
+
+// REDIS PUB/SUB
+
+/*
+- listen for publish from view
+- create a new socket.emit()
+- send data from view into socket.emit("",data);
+- on client side, run check if data.reparked_by == request.user
+	- run socket.emit("check-matching-valet", data);
+
+*/
+
+
+valet_nsp.emit("check-matching-valet",data);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

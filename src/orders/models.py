@@ -36,6 +36,7 @@ class ScheduledRepark(Order):
 	scheduled_end_date = models.DateField()
 	time_limit = models.IntegerField()
 	parking_exp_time = models.DateTimeField()
+	is_scheduled_repark = models.BooleanField(default=True)
 
 	class Meta:
 

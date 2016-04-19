@@ -17,8 +17,7 @@ from locations.serializers import IntersectionLatLngSerializer, ParkingSectionSe
 from payments.models import PaymentMethod
 
 
-
-
+from orders import tasks
 from orders.models import Repark, Dropoff, ScheduledRepark
 from orders.serializers import ReparkSerializer, DropoffSerializer, ScheduledReparkSerializer
 
@@ -124,6 +123,9 @@ def customer_submits_valet_request(request, format=None):
 
 			serializer = ScheduledReparkSerializer(scheduled_repark)
 
+
+			# send repark to celery task queue
+			tasks.match_valet_with_repark.delay(scheduled_repark.id)
 
 		data = serializer.data
 		print(data)
@@ -439,24 +441,6 @@ def charge_customer(customer_id):
 	)
 
 
-# ===============================
-# Assign valet a scheduled repark
-# ===============================
-def retrieve_valet_location(request):
-
-	pass
-
-"""
-1.) Query valets and filter is_available (backend) <=====> Ping valet locations (client)
-3.) Calculate distance and travel time (backend)
-4.) Send message request to top 3 valets (client)
-5.) Repeat 'accept-request' cycle 
-6.) Once accept, move on to next one
-
-"""
-def assign_valet_to_scheduled_repark(request):
-
-	pass
 
 
 

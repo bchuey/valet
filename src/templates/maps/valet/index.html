@@ -616,7 +616,7 @@
           lat: parseFloat(data.pickup_location.lat),
           lng: parseFloat(data.pickup_location.lng),
         }
-      } else {
+      } else if(data.is_dropoff) {
 
         // valet current position
         origin_latlng = {
@@ -633,6 +633,20 @@
 
         // need to add one more point for the user's current position
         // this location is equivalent to dropoff.dropoff_location
+
+      } else {
+
+        origin_latlng = {
+          lat: parseFloat(data.valet_start_pos.lat),
+          lng: parseFloat(data.valet_start_pos.lng),
+
+        }
+
+        destination_latlng = {
+          lat: parseFloat(data.pickup_location.lat),
+          lng: parseFloat(data.pickup_location.lng),
+        }
+
 
       }
 
@@ -660,8 +674,15 @@
             console.log(response);
             // if success:
             // change button
-            $("#actionButton").text("Arrived");
-            $("#actionButton").attr("onClick", "arrived()");
+            if(data.is_scheduled_repark){
+              $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large actionBtn light-blue darken-1' onClick='arrived()'>Arrived</button></div>");
+            } else {
+
+              $("#actionButton").text("Arrived");
+              $("#actionButton").attr("onClick", "arrived()");
+
+            }
+            
 
           } else {
             window.alert('Directions request failed due to ' + status);
@@ -676,6 +697,17 @@
 
     });
   
+    socket.on("check-matching-valet", function(data){
+
+      var valet = {{ request.user }}
+
+      if(data.reparked_by == valet)
+      {
+        socket.emit("valet-join-room", data);
+
+      }
+
+    });
 
 
 {% endblock on_ready_js %}

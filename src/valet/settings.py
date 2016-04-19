@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 import environ
+import djcelery
 
 env = environ.Env()
 
+djcelery.setup_loader()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,6 +51,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
 
     'rest_framework',
+    'djcelery',
+    'kombu.transport.django',
 
 ]
 
@@ -179,4 +183,7 @@ LOGIN_URL = '/login'
 STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY', default='sk_test_BQokikJOvBiI2HlWgH4olfQ2')
 STRIPE_TEST_PUBLISHABLE_KEY = env('STRIPE_TEST_PUBLISHABLE_KEY', default='pk_test_6pRNASCoBOKtIshFeQd4XMUh')
 
-
+### CELERY ###
+BROKER_URL = 'redis://127.0.0.1:6379/0' # using server 0
+BROKER_TRANSPORT = 'redis'  # broker=> where you store tasks in a queue
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
