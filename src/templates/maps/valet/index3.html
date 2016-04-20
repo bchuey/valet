@@ -21,17 +21,6 @@
   var placeIdArray = [];
   var polylines = [];
   var snappedCoordinates = [];
-  var watchID;
-  var geoLoc;
-  var current_latitude;
-  var current_longitude;
-
-  function connectSocket(){
-    // var socket;
-    socket = io.connect('http://127.0.0.1:3000/valets');
-    console.log('ran connectSocket');
-    
-  }
 
   function geocodeLatLng(geocoder, lat, lng) {
 
@@ -40,8 +29,11 @@
         if (status === google.maps.GeocoderStatus.OK) {
           if (results[0]) {
 
-            var address = results[0].formatted_address;
-            document.getElementById('id_reparked_address').value = address;
+            //console.log(results[0].formatted_address);
+            //var address = results[0].formatted_address;
+            //console.log(address);
+            //document.getElementById('id_address').value = address;
+            //return address;
 
           } else {
             window.alert('No results found');
@@ -52,86 +44,68 @@
       });
   }
 
-  function showLocation(position) {
-      current_latitude = position.coords.latitude;
-      current_longitude = position.coords.longitude;
-
-      // send new location to server.js
-      //socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
-
-      var pos = {
-        lat: current_latitude,
-        lng: current_longitude,
-      }
-      
-      console.log(pos);
-
-      document.getElementById('id_lat').value = pos.lat;
-      document.getElementById('id_lng').value = pos.lng;
-      document.getElementById('id_reparked_lat').value = pos.lat;
-      document.getElementById('id_reparked_lng').value = pos.lng;
-
-      var geocoder = new google.maps.Geocoder;
-      geocodeLatLng(geocoder, pos.lat, pos.lng);
-
-      var markerLatLng = new google.maps.LatLng(pos.lat,pos.lng);
-
-      if(marker){
-
-        marker.setPosition(markerLatLng);
-
-      } else {
-
-        marker = new google.maps.Marker({
-          position: markerLatLng,
-          map: map,
-          animation: google.maps.Animation.DROP,
-        });
-
-      }
-      
-
-  }
-   
-  function errorHandler(err) {
-      if(err.code == 1) {
-         alert("Error: Access is denied!");
-      }
-      
-      else if( err.code == 2) {
-         alert("Error: Position is unavailable!");
-      }
-  }
-
-  // clear the watch that was started earlier
-  function clearWatch() {
-      if (watchID != null) {
-          navigator.geolocation.clearWatch(watchID);
-          watchID = null;
-      }
-  }
- 
-  function getLocationUpdate(){
-      if(navigator.geolocation){
-         // Update every 1 ms seconds
-         var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
-         geoLoc = navigator.geolocation;
-         watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
-      }
-      
-      else{
-         alert("Sorry, browser does not support geolocation!");
-      }
-  }
-
-
-  function initializeMap() 
-  {
+  function updateCurrentLocation(){
       // Try HTML5 geolocation.
-        if (navigator.geolocation) 
-        {
-          navigator.geolocation.getCurrentPosition(function(position) 
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+
+            document.getElementById('id_lat').value = pos.lat;
+            document.getElementById('id_lng').value = pos.lng;
+
+            console.log("new lat position: " + pos.lat);
+            console.log("new lng position: " + pos.lng);
+
+            
+            // draw map
+            // set center to the currentPosition lat, lng
+            map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: pos.lat, lng: pos.lng},
+              zoom: 15,
+            });
+
+
+          marker_locations.push(pos);
+          for(var i = 0; i < marker_locations.length; i++)
           {
+              marker = new google.maps.Marker({
+                position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
+                map: map,
+                animation: google.maps.Animation.DROP,
+              });
+          }
+
+
+        var geocoder = new google.maps.Geocoder;
+        geocodeLatLng(geocoder, pos.lat, pos.lng);
+        //console.log(result);
+
+        
+
+        }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                            'Error: The Geolocation service failed.' :
+                            'Error: Your browser doesn\'t support geolocation.');
+      }
+  }
+
+  function getCurrentLocation() {
+      // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
             var pos = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
@@ -161,8 +135,19 @@
               },
             });
 
-            var geocoder = new google.maps.Geocoder;
-            geocodeLatLng(geocoder, pos.lat, pos.lng);
+
+            marker_locations.push(pos);
+            for(var i = 0; i < marker_locations.length; i++)
+            {
+                marker = new google.maps.Marker({
+                  position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
+                  map: map,
+                  animation: google.maps.Animation.DROP,
+                });
+            }
+
+        var geocoder = new google.maps.Geocoder;
+        geocodeLatLng(geocoder, pos.lat, pos.lng);
 
           }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -178,6 +163,13 @@
                             'Error: The Geolocation service failed.' :
                             'Error: Your browser doesn\'t support geolocation.');
       }
+  }
+
+  function connectSocket(){
+    // var socket;
+    socket = io.connect('http://127.0.0.1:3000/valets');
+    console.log('ran connectSocket');
+    
   }
 
   function requestAccepted(){
@@ -199,7 +191,50 @@
        }
      });
 
-     socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
+    var watchID;
+    var geoLoc;
+
+    function showLocation(position) {
+        var latitude = position.coords.latitude;
+        var longitude = position.coords.longitude;
+        //alert("Latitude : " + latitude + " Longitude: " + longitude);
+
+        // send new location to server.js
+        socket.emit('get-new-location', {lat:latitude,lng:longitude});
+    }
+     
+    function errorHandler(err) {
+        if(err.code == 1) {
+           alert("Error: Access is denied!");
+        }
+        
+        else if( err.code == 2) {
+           alert("Error: Position is unavailable!");
+        }
+    }
+
+     // clear the watch that was started earlier
+    function clearWatch() {
+        if (watchID != null) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+        }
+    }
+   
+    function getLocationUpdate(){
+        if(navigator.geolocation){
+           // Update every 1 ms seconds
+           var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
+           geoLoc = navigator.geolocation;
+           watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+        }
+        
+        else{
+           alert("Sorry, browser does not support geolocation!");
+        }
+    }
+
+    getLocationUpdate();
 
   }
 
@@ -268,36 +303,88 @@
 
   function reparked(){
     
-    // run ajax post request
-    var url = "request/reparked/"; // the script where you handle the form input.
+    // grabs the new position, but takes time to load...
+    function geocodeLatLng(geocoder, lat, lng) {
 
-    $.ajax({
-       type: "POST",
-       url: url,
-       data: $("#updateLocationForm").serialize(), // serializes the form's elements.
-       success: function(data)
-       {
-          // alert user
-          socket.emit("vehicle-reparked", data);
+      var latlng = {lat: parseFloat(lat), lng: parseFloat(lng)};
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          if (results[0]) {
 
-          console.log("success response when vehicle is reparked");
-          console.log(data);
+            var address = results[0].formatted_address;
+            console.log("full address: " + address);
+            document.getElementById('id_reparked_address').value = address;
 
-          // reset map and directions
-          directionsDisplay.setMap(null);
+            // run ajax post request
+            var url = "request/reparked/"; // the script where you handle the form input.
+
+            $.ajax({
+               type: "POST",
+               url: url,
+               data: $("#updateLocationForm").serialize(), // serializes the form's elements.
+               success: function(data)
+               {
+                  // alert user
+                  socket.emit("vehicle-reparked", data);
+
+                  console.log("success response when vehicle is reparked");
+                  console.log(data);
+
+                  // reset map and directions
+                  directionsDisplay.setMap(null);
 
 
-          // run a getCurrentLocation() or rerun watchPosition() ??
+                  // run a getCurrentLocation() or rerun watchPosition() ??
 
 
 
-          // show new button
-          $("#actionButton").text("Return");
-          $("#actionButton").attr("onClick", "returnHome()");
+                  // show new button
+                  $("#actionButton").text("Return");
+                  $("#actionButton").attr("onClick", "returnHome()");
 
-       },
-       
-     });
+               },
+               
+             });
+            } else {
+              window.alert('No results found');
+            }
+          } else {
+            window.alert('Geocoder failed due to: ' + status);
+          }
+        });
+        return false;
+      }
+      // Try HTML5 geolocation.
+      if (navigator.geolocation) 
+      {
+        navigator.geolocation.getCurrentPosition(function(position) 
+        {
+          console.log("position alert alert alert");
+          var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          document.getElementById('id_reparked_lat').value = pos.lat;
+          document.getElementById('id_reparked_lng').value = pos.lng;
+
+          console.log(pos.lat);
+          console.log(pos.lng);
+
+          var geocoder = new google.maps.Geocoder;
+          geocodeLatLng(geocoder, pos.lat, pos.lng);
+
+          
+        }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+
+    
+
 
   }
 
@@ -455,7 +542,6 @@
       {
         // do something
         socket.emit("request-completed");
-        clearWatch();
         window.location.href = '/valet/';
       }
 
@@ -469,8 +555,7 @@
 
     $(".button-collapse").sideNav();
     connectSocket();
-    initializeMap();
-    getLocationUpdate();
+    getCurrentLocation();
 
     socket.on('incoming-request', function(data){
 
@@ -620,7 +705,7 @@
       {
 
         // getLocation (?)
-
+        getCurrentLocation();
         // run ajax.POST request
         $("#scheduled_repark_id").val(data.id);
         var url = 'request/accept/';
