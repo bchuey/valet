@@ -60,15 +60,12 @@ def match_valet_with_repark(repark_id):
 	# redis pub/sub
 	r = redis.StrictRedis()
 	channel = scheduled_repark.request_uuid
-	r.publish(channel, data)
+	r.publish("valets", data)
 
 	return Response(data)
 
 	
 
-
-
-
-
-
-
+# if you want to assign the closest valet,
+# you must grab their position
+# and save that position

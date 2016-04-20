@@ -5,10 +5,15 @@ app.listen(3000, function(){
 	console.log('listening on port 3000');
 });
 
-// what does this line do?
-// var redis = require('socket.io/node_modules/redis');
-
+// user adapter
 var redis = require('redis');
+
+//var store = redis.createClient();
+//var pub = redis.createClient();
+// var sub = redis.createClient();
+var client;
+
+
 
 // create custom namespace for Users
 
@@ -34,7 +39,6 @@ usr_nsp.on('connection', function(socket){
 
 	socket.on('new-scheduled-repark', function(data){
 		room_number = data.request_uuid;
-		redis_channel = data.request_uuid;
 		socket.join(room_number);
 		valet_nsp.emit("incoming-scheduled-request", data);
 	});
@@ -103,18 +107,16 @@ valet_nsp.on('connection', function(socket){
 		- run socket.emit("check-matching-valet", data);
 
 	*/
-
-	// connect to redis client
-	var client = redis.createClient();
+	client = redis.createClient();
 
 	// subscribe client to a channel
-	client.subscribe(redis_channel);
+	client.subscribe("valets");
 
 	// listen for pub from views.py
-	clien.on("message", function(channel, data){
+	client.on("message", function(channel, data){
 		valet_nsp.emit("check-matching-valet",data);
 	})
-		
+
 	// put valet in room for scheduled repark request
 	socket.on("valet-join-room", function(data){
 		room_number = data.request_uuid;
@@ -123,23 +125,6 @@ valet_nsp.on('connection', function(socket){
 	})
 
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

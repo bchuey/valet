@@ -125,8 +125,9 @@ def customer_submits_valet_request(request, format=None):
 
 
 			# send repark to celery task queue
-
-			tasks.match_valet_with_repark.delay(scheduled_repark.id, eta=scheduled_repark.parking_exp_time)
+			# eta should be 30 to 45 mins before parking_exp_time
+			# tasks.match_valet_with_repark.delay(scheduled_repark.id, eta=scheduled_repark.parking_exp_time)
+			tasks.match_valet_with_repark.delay(scheduled_repark.id, countdown=60)
 
 		data = serializer.data
 		print(data)
@@ -217,13 +218,12 @@ def valet_accepts_request(request):
 			request.session["dropoff_id"] = dropoff.id
 			serializer = DropoffSerializer(dropoff)
 
-		# if request.POST['scheduled_repark_id']:
+		if request.POST['scheduled_repark_id']:
 
-		# 	scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
-		# 	scheduled_repark.reparked_by = valet
-		# 	scheduled_repark.save()
+			scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
 
-			# add this object to a queue here???
+			request.session["scheduled_repark_id"] = scheduled_repark.id
+			serializer = ScheduledReparkSerializer(scheduled_repark)
 
 
 		data = serializer.data
@@ -426,6 +426,7 @@ def request_completed(request):
 				print(request.session["dropoff_id"])
 			except:
 				print("repark.session['dropoff_id'] is deleted")
+
 
 		return HttpResponseRedirect('%s'%(reverse('valet-map')))
 

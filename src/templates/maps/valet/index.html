@@ -699,11 +699,27 @@
   
     socket.on("check-matching-valet", function(data){
 
-      var valet = {{ request.user }}
+      var valet = "{{ request.user }}";
 
-      if(data.reparked_by == valet)
+      if(data.reparked_by.email === valet)
       {
-        socket.emit("valet-join-room", data);
+
+        // getLocation (?)
+        getCurrentLocation();
+        // run ajax.POST request
+        $("#scheduled_repark_id").val(data.id);
+        var url = 'request/accept/';
+        $.ajax({
+          type:"POST",
+          url: url,
+          data: $("#reparkRequestForm").serializer(),
+          success: function(data)
+          {
+            socket.emit("valet-join-room", data);
+          }
+
+        });
+        return false;
 
       }
 
@@ -724,6 +740,7 @@
   <input type="hidden" class="" id="valet_id" name="valet_id" value="{{ request.user.id }}"/>
   <input type="hidden" class="" id="repark_id" name="repark_id" />
   <input type="hidden" class="" id="dropoff_id" name="dropoff_id" />
+  <input type="hidden" class="" id="scheduled_repark_id" name="scheduled_repark_id" />
   <input type="hidden" id="id_lat"  name="lat" />
   <input type="hidden" id="id_lng"  name="lng" />
 </form>
