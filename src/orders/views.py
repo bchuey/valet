@@ -125,7 +125,8 @@ def customer_submits_valet_request(request, format=None):
 
 
 			# send repark to celery task queue
-			tasks.match_valet_with_repark.delay(scheduled_repark.id)
+
+			tasks.match_valet_with_repark.delay(scheduled_repark.id, eta=scheduled_repark.parking_exp_time)
 
 		data = serializer.data
 		print(data)

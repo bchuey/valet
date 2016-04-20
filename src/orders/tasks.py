@@ -6,6 +6,7 @@ from accounts.models import User
 from orders.models import ScheduledRepark
 from orders.serializers import ScheduledReparkSerializer
 
+import redis
 
 """
 ==============
@@ -57,7 +58,9 @@ def match_valet_with_repark(repark_id):
 	"""
 
 	# redis pub/sub
-
+	r = redis.StrictRedis()
+	channel = scheduled_repark.request_uuid
+	r.publish(channel, data)
 
 	return Response(data)
 
