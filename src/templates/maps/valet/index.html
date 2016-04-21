@@ -25,6 +25,9 @@
   var geoLoc;
   var current_latitude;
   var current_longitude;
+  var current_request = false;
+
+
 
   function connectSocket(){
     // var socket;
@@ -56,25 +59,26 @@
       current_latitude = position.coords.latitude;
       current_longitude = position.coords.longitude;
 
-      // send new location to server.js
-      //socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
+     console.log(current_latitude, current_longitude);
 
-      var pos = {
-        lat: current_latitude,
-        lng: current_longitude,
+      document.getElementById('id_lat').value = current_latitude;
+      document.getElementById('id_lng').value = current_longitude;
+      document.getElementById('id_reparked_lat').value = current_latitude;
+      document.getElementById('id_reparked_lng').value = current_longitude;
+
+      if(current_request === true){
+         // send new location to server.js if there is a current request
+        socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
+        console.log("there is a request");
+      } else {
+        console.log("there is no request");
       }
-      
-      console.log(pos);
-
-      document.getElementById('id_lat').value = pos.lat;
-      document.getElementById('id_lng').value = pos.lng;
-      document.getElementById('id_reparked_lat').value = pos.lat;
-      document.getElementById('id_reparked_lng').value = pos.lng;
+     
 
       var geocoder = new google.maps.Geocoder;
-      geocodeLatLng(geocoder, pos.lat, pos.lng);
+      geocodeLatLng(geocoder, current_latitude, current_longitude);
 
-      var markerLatLng = new google.maps.LatLng(pos.lat,pos.lng);
+      var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
 
       if(marker){
 
@@ -137,11 +141,11 @@
               lng: position.coords.longitude
             };
 
-            document.getElementById('id_lat').value = pos.lat;
-            document.getElementById('id_lng').value = pos.lng;
+            //document.getElementById('id_lat').value = pos.lat;
+            //document.getElementById('id_lng').value = pos.lng;
 
-            console.log(pos.lat);
-            console.log(pos.lng);
+            //console.log(pos.lat);
+            //console.log(pos.lng);
 
             
             // draw map
@@ -192,14 +196,16 @@
        {
            console.log("successfully retrieved repark obj");
            console.log(data);
-           
+           current_request = true;
            $("#floating-request-screen").hide();
            socket.emit('join-room', data);
+
 
        }
      });
 
-     socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
+     // new location update should happen every time showLocation succeeds
+     //socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
 
   }
 
@@ -298,6 +304,7 @@
        },
        
      });
+     current_request = false;
 
   }
 

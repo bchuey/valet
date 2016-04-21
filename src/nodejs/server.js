@@ -73,8 +73,7 @@ valet_nsp.on('connection', function(socket){
 
 	socket.on('get-new-location', function(data){
 
-		// send the updated location only to User
-		// maybe use .broadcast??
+		// send the updated location only to User in same room
 		usr_nsp.to(room_number).emit("update-valet-location", data);
 
 	});

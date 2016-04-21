@@ -10,12 +10,12 @@ import uuid
 # Create your models here.
 class Order(models.Model):
 
-	request_uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+	request_uuid = models.UUIDField(default=uuid.uuid4)
 	requested_by = models.ForeignKey(User, verbose_name='customer', related_name='%(app_label)s_%(class)s_customer_related', null=True, blank=True)
 	reparked_by = models.ForeignKey(User, verbose_name='valet', related_name='%(app_label)s_%(class)s_valet_related', null=True, blank=True)
 	pickup_location = models.ForeignKey(Location, verbose_name='pickup location', related_name='%(app_label)s_%(class)s_pickup_loc_related', null=True, blank=True)
 	dropoff_location = models.ForeignKey(Location, verbose_name='dropoff location', related_name='%(app_label)s_%(class)s_dropoff_loc_related', null=True, blank=True)
-	requested_at = models.DateTimeField(auto_now_add=True, auto_now=False)
+	requested_at = models.DateTimeField()
 	picked_up_at = models.DateTimeField(null=True, blank=True)
 	enroute_at = models.DateTimeField(null=True, blank=True)
 	dropped_off_at = models.DateTimeField(null=True, blank=True)

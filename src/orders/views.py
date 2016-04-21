@@ -77,6 +77,7 @@ def customer_submits_valet_request(request, format=None):
 			repark = Repark()
 			repark.requested_by = customer
 			repark.pickup_location = location
+			repark.requested_at = local_time_now
 			repark.save()
 			request.session["repark_id"] = repark.id
 
@@ -95,6 +96,7 @@ def customer_submits_valet_request(request, format=None):
 			dropoff.pickup_location = last_request.dropoff_location
 			# vehicle dropoff location is location of user's current position
 			dropoff.dropoff_location = location
+			dropoff.requested_at = local_time_now
 			dropoff.save()
 			request.session["dropoff_id"] = dropoff.id
 
@@ -108,6 +110,7 @@ def customer_submits_valet_request(request, format=None):
 			scheduled_repark.scheduled_start_date = request.POST['scheduled_start_date']
 			scheduled_repark.scheduled_end_date = request.POST['scheduled_end_date']
 			scheduled_repark.time_limit = request.POST['time_limit']
+			scheduled_repark.requested_at = local_time_now
 
 			"""
 			Calculate the expiration time based on when user requested repark
