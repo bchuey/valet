@@ -15,6 +15,9 @@
   var current_longitude;
   var locked_position_lat;
   var locked_position_lng;
+  var centerControlDiv;
+  var controlUI;
+  var controlText;
 
   function geocodeLatLng(geocoder, lat, lng) 
   {
@@ -130,6 +133,8 @@
 
       }
 
+      map.setCenter(markerLatLng);
+
   }
    
   function errorHandler(err) {
@@ -163,6 +168,43 @@
     }
   }
 
+  function CenterControl(controlDiv, map) {
+
+    // Set CSS for the control border.
+    controlUI = document.createElement('div');
+    controlUI.style.backgroundColor = '#fff';
+    controlUI.style.border = '2px solid #fff';
+    controlUI.style.borderRadius = '3px';
+    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.marginBottom = '22px';
+    controlUI.style.textAlign = 'center';
+    controlUI.title = 'Click to recenter the map';
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior.
+    controlText = document.createElement('div');
+    controlText.style.color = 'rgb(25,25,25)';
+    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+    controlText.style.fontSize = '16px';
+    controlText.style.lineHeight = '38px';
+    controlText.style.paddingLeft = '5px';
+    controlText.style.paddingRight = '5px';
+    controlText.innerHTML = '+';
+    controlUI.appendChild(controlText);
+
+    // Setup the click event listeners: simply set the map to center
+    controlUI.addEventListener('click', function() {
+      var current_center_pos = {lat:current_latitude,lng:current_longitude}
+      map.setCenter(current_center_pos);
+      console.log("The current center position is: " + current_center_pos.lat + ',' + current_center_pos.lng);
+      locked_position_lat = map.getCenter().lat();
+      locked_position_lng = map.getCenter().lng();
+    });
+
+  }
+
+  
   function initializeMap() 
   {
       // Try HTML5 geolocation.
@@ -200,46 +242,6 @@
             });
 
 
-          function CenterControl(controlDiv, map) {
-
-            // Set CSS for the control border.
-            var controlUI = document.createElement('div');
-            controlUI.style.backgroundColor = '#fff';
-            controlUI.style.border = '2px solid #fff';
-            controlUI.style.borderRadius = '3px';
-            controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
-            controlUI.style.cursor = 'pointer';
-            controlUI.style.marginBottom = '22px';
-            controlUI.style.textAlign = 'center';
-            controlUI.title = 'Click to recenter the map';
-            controlDiv.appendChild(controlUI);
-
-            // Set CSS for the control interior.
-            var controlText = document.createElement('div');
-            controlText.style.color = 'rgb(25,25,25)';
-            controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
-            controlText.style.fontSize = '16px';
-            controlText.style.lineHeight = '38px';
-            controlText.style.paddingLeft = '5px';
-            controlText.style.paddingRight = '5px';
-            controlText.innerHTML = '+';
-            controlUI.appendChild(controlText);
-
-            // Setup the click event listeners: simply set the map to center
-            controlUI.addEventListener('click', function() {
-              map.setCenter(pos);
-            });
-
-          }
-
-          // Create the DIV to hold the control and call the CenterControl()
-          // constructor passing in this DIV.
-          var centerControlDiv = document.createElement('div');
-          var centerControl = new CenterControl(centerControlDiv, map);
-
-          centerControlDiv.index = 1;
-          map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
-
           center_marker = new google.maps.Marker({
             position: pos,
             map: map,
@@ -250,13 +252,17 @@
 
           //This line is what makes the Marker stick to the center of the map
           google.maps.event.addListener(map, 'tilesloaded', function(){
+            
             // do something only the first time the map is loaded
             center_marker.bindTo('position', map, 'center');
 
-
           });
 
+          centerControlDiv = document.createElement('div');
 
+          var centerControl = new CenterControl(centerControlDiv, map);
+          centerControlDiv.index = 1;
+          map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
 
         $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
 
@@ -676,6 +682,7 @@
   {% block window_load_js %}
 
     google.maps.event.addListener(map, 'dragstart', function(event){
+
       $("#floating-button").hide();
     });
 
