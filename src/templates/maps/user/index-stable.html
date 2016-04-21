@@ -7,13 +7,9 @@
 {% block jquery %}
   var socket;
   var map;
-  var center_marker;
-  var current_pos_marker;
+  var marker;
   var marker_locations = [];
   var geocoder;
-  var current_latitude;
-  var current_longitude;
-
 
   function geocodeLatLng(geocoder, lat, lng) 
   {
@@ -98,74 +94,7 @@
       }
   }
 
-  function showLocation(position) {
-      current_latitude = position.coords.latitude;
-      current_longitude = position.coords.longitude;
-
-      //console.log(current_latitude, current_longitude);
-      console.log("watching user position");
-
-      document.getElementById('id_lat').value = current_latitude;
-      document.getElementById('id_lng').value = current_longitude;
-    
-      var geocoder = new google.maps.Geocoder;
-      geocodeLatLng(geocoder, current_latitude, current_longitude);
-
-      var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
-
-      if(current_pos_marker){
-
-        current_pos_marker.setPosition(markerLatLng);
-        console.log("new position. new marker.");
-
-      } else {
-
-        current_pos_marker = new google.maps.Marker({
-          position: markerLatLng,
-          map: map,
-          animation: google.maps.Animation.DROP,
-        });
-        console.log("initial current pos marker");
-
-      }
-
-
-
-
-  }
-   
-  function errorHandler(err) {
-      if(err.code == 1) {
-         alert("Error: Access is denied!");
-      }
-      
-      else if( err.code == 2) {
-         alert("Error: Position is unavailable!");
-      }
-  }
-
-  // clear the watch that was started earlier
-  function clearWatch() {
-      if (watchID != null) {
-          navigator.geolocation.clearWatch(watchID);
-          watchID = null;
-      }
-  }
-
-  function initiateWatchPosition(){
-    if(navigator.geolocation){
-       // Update every 1 ms seconds
-       var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
-       geoLoc = navigator.geolocation;
-       watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
-    }
-    
-    else{
-       alert("Sorry, browser does not support geolocation!");
-    }
-  }
-
-  function initializeMap() 
+  function getCurrentLocation() 
   {
       // Try HTML5 geolocation.
         if (navigator.geolocation) {
@@ -200,6 +129,17 @@
               },
               draggable: true,
             });
+
+
+          marker = new google.maps.Marker({
+            position: new google.maps.LatLng(pos.lat, pos.lng),
+            map: map,
+            animation: google.maps.Animation.DROP
+          });
+
+          geocoder = new google.maps.Geocoder;
+          geocodeLatLng(geocoder, pos.lat, pos.lng);
+
 
 
           function CenterControl(controlDiv, map) {
@@ -242,21 +182,9 @@
           centerControlDiv.index = 1;
           map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
 
-          center_marker = new google.maps.Marker({
-            position: pos,
-            map: map,
-            animation: google.maps.Animation.DROP,
-          });
-
-          console.log("initial center marker set");
-
-          //This line is what makes the Marker stick to the center of the map
-          google.maps.event.addListener(map, 'tilesloaded', function(){
-            // do something only the first time the map is loaded
-            center_marker.bindTo('position', map, 'center');
 
 
-          });
+
 
 
 
@@ -264,6 +192,17 @@
 
         $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
+        
+
+
+        //console.log(marker);
+        //This line is what makes the Marker stick to the center of the map
+        google.maps.event.addListener(map, 'tilesloaded', function(){
+          // do something only the first time the map is loaded
+          marker.bindTo('position', map, 'center');
+
+
+        });
 
 
         }, function() {
@@ -492,8 +431,7 @@
 
     
     connectSocket();
-    initializeMap();
-    initiateWatchPosition();
+    getCurrentLocation();
     displayAutocomplete();
 
     
