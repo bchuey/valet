@@ -13,7 +13,8 @@
   var geocoder;
   var current_latitude;
   var current_longitude;
-
+  var locked_position_lat;
+  var locked_position_lng;
 
   function geocodeLatLng(geocoder, lat, lng) 
   {
@@ -25,7 +26,7 @@
 
             //console.log(results[0].formatted_address);
             var address = results[0].formatted_address;
-            //console.log(address);
+            console.log(address);
             document.getElementById('id_address').value = address;
             //return address;
 
@@ -108,7 +109,7 @@
       document.getElementById('id_lat').value = current_latitude;
       document.getElementById('id_lng').value = current_longitude;
     
-      var geocoder = new google.maps.Geocoder;
+      geocoder = new google.maps.Geocoder;
       geocodeLatLng(geocoder, current_latitude, current_longitude);
 
       var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
@@ -128,9 +129,6 @@
         console.log("initial current pos marker");
 
       }
-
-
-
 
   }
    
@@ -260,7 +258,7 @@
 
 
 
-        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
 
         $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
@@ -485,6 +483,15 @@
     return false; 
   }
 
+  function lockPosition()
+  {
+    document.getElementById("id_lat").value = locked_position_lat;
+    document.getElementById("id_lng").value = locked_position_lng;
+
+    geocoder = new google.maps.Geocoder;
+    geocodeLatLng(geocoder, locked_position_lat, locked_position_lng);
+  }
+
 
   {% endblock jquery %}
   
@@ -668,17 +675,26 @@
   {% endblock on_ready_js %}
   {% block window_load_js %}
 
+    google.maps.event.addListener(map, 'dragstart', function(event){
+      $("#floating-button").hide();
+    });
+
     // Drag map, then set new lat,lng coordinates
     google.maps.event.addListener(map, 'dragend', function (event) {
 
       console.log(map.getCenter().lat());
       console.log(map.getCenter().lng());
 
-      document.getElementById("id_lat").value = map.getCenter().lat();
-      document.getElementById("id_lng").value = map.getCenter().lng();
+      //document.getElementById("id_lat").value = map.getCenter().lat();
+      //document.getElementById("id_lng").value = map.getCenter().lng();
+
+      locked_position_lat = map.getCenter().lat();
+      locked_position_lng = map.getCenter().lng();
 
       geocoder = new google.maps.Geocoder;
       geocodeLatLng(geocoder, map.getCenter().lat(), map.getCenter().lng());
+
+      $("#floating-button").show();
 
     });
   {% endblock window_load_js %}
