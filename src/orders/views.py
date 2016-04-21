@@ -70,7 +70,7 @@ def customer_submits_valet_request(request, format=None):
 
 		if request.POST['is_repark']:
 
-			# create Repark instance
+			# create Repark instancee
 			repark = Repark()
 			repark.requested_by = customer
 			repark.pickup_location = location
@@ -166,7 +166,7 @@ def retrieve_latest_request(request):
 		if latest_request:
 			serializer = ReparkSerializer(latest_request)
 			data = serializer.data
-
+			print ("retrieving latest request")
 			return Response(data, template_name='maps/user/index.html')
 		else:
 

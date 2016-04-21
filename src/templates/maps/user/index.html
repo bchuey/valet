@@ -348,7 +348,7 @@
   function getLatestRequest()
   {
     var url = 'request/latest/';
-    $ajax({
+    $.ajax({
       type: 'GET',
       url: url,
       data: null,
@@ -373,11 +373,6 @@
     return false; 
   }
 
-
-  $("#latestRequest").click(function(){
-      getLatestRequest();
-      return false;
-  });
 
   {% endblock jquery %}
   
