@@ -529,8 +529,8 @@
       if(data.is_repark)
       {
         origin_latlng = {
-          lat: parseFloat(data.valet_start_pos.lat),
-          lng: parseFloat(data.valet_start_pos.lng),
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
 
         }
 
@@ -542,8 +542,8 @@
 
         // valet current position
         origin_latlng = {
-          lat: parseFloat(data.valet_start_pos.lat),
-          lng: parseFloat(data.valet_start_pos.lng),
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
 
         }
 
@@ -559,8 +559,8 @@
       } else {
 
         origin_latlng = {
-          lat: parseFloat(data.valet_start_pos.lat),
-          lng: parseFloat(data.valet_start_pos.lng),
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
 
         }
 
@@ -626,8 +626,6 @@
       if(data.reparked_by.email === valet)
       {
 
-        // getLocation (?)
-
         // run ajax.POST request
         $("#scheduled_repark_id").val(data.id);
         var url = 'request/accept/';
@@ -637,6 +635,8 @@
           data: $("#reparkRequestForm").serializer(),
           success: function(data)
           {
+
+            current_request = true;
             socket.emit("valet-join-room", data);
           }
 

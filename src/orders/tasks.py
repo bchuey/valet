@@ -65,12 +65,8 @@ def match_valet_with_repark(repark_id):
 
 	scheduled_repark.reparked_by = assigned_valet
 
-	# scheduled_repark.reparked_by = valets[0]
 	scheduled_repark.save()
 
-	# somehow run the 'incoming-request' socket 
-
-	# serializer object
 	serializer = ScheduledReparkSerializer(scheduled_repark)
 	data = serializer.data
 

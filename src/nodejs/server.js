@@ -114,6 +114,7 @@ valet_nsp.on('connection', function(socket){
 	// listen for pub from views.py
 	client.on("message", function(channel, data){
 		valet_nsp.emit("check-matching-valet",data);
+		console.log("received message from channel: valets");
 	})
 
 	// put valet in room for scheduled repark request

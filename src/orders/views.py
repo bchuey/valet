@@ -65,10 +65,7 @@ def customer_submits_valet_request(request, format=None):
 		location = Location()
 		location.lat = request.POST['lat']
 		location.lng = request.POST['lng']
-		try:
-			location.full_address = request.POST['full_address']
-		except:
-			pass
+		location.full_address = request.POST['address']
 		location.save()
 
 		if request.POST['is_repark']:
