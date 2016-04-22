@@ -474,14 +474,9 @@ def update_current_position(request):
 	valet.current_position = current_position
 	valet.save()
 
-	serializer = UserSerializer(valet)
-	data = serializer.data
+	msg = "Updated valet's current position"
 
-	print "updated valets current position"
-	print "valet: " 
-	print data
-
-	return Response(data, template_name='maps/valet/index.html')
+	return Response(msg, template_name='maps/valet/index.html')
 
 
 

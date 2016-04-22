@@ -621,8 +621,10 @@
   
     socket.on("check-matching-valet", function(data){
 
+      console.log("this is the data from socket.emit(): ");
+      console.log(data);
+
       var valet = "{{ request.user }}";
-      console.log(data.reparked_by);
 
       if(data.reparked_by.email === valet)
       {
@@ -633,7 +635,7 @@
         $.ajax({
           type:"POST",
           url: url,
-          data: $("#reparkRequestForm").serializer(),
+          data: $("#reparkRequestForm").serialize(),
           success: function(data)
           {
 

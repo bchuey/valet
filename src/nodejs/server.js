@@ -113,11 +113,22 @@ valet_nsp.on('connection', function(socket){
 	client.subscribe("valets");
 	// listen for pub from views.py
 	client.on("message", function(channel, data){
-		valet_nsp.emit("check-matching-valet",data);
+
 		console.log("received message from channel: valets");
+		console.log("here is the data from celery task: ");
+		//console.log(data);
+		/*
+		deserialize data HERE
+
+		*/
+		obj = JSON.parse(data)
+		console.log(obj);
+
+		valet_nsp.emit("check-matching-valet",obj);
+		
 	});
 
-	
+
 	client1.subscribe("query_valets");
 
 	client1.on("message", function(channel,data){

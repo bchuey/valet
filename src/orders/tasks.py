@@ -8,6 +8,9 @@ from orders.models import ScheduledRepark
 from orders.serializers import ScheduledReparkSerializer
 
 import redis
+import json
+
+from rest_framework.renderers import JSONRenderer
 
 from geopy.distance import vincenty
 
@@ -107,12 +110,17 @@ def match_valet_with_repark(valets, repark_id):
 	data = serializer.data
 
 
+	json = JSONRenderer().render(data)
+	data = json
+
 	# redis pub/sub
 	r = redis.StrictRedis()
 	channel = scheduled_repark.request_uuid
 	r.publish("valets", data)
+
 	print "updated scheduled repark: "
 	print data
+
 
 	return data
 
