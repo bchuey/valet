@@ -29,6 +29,7 @@ from orders.views import (
     valet_returning_home,
     request_completed,
     retrieve_latest_request,
+    update_current_position,
 )
 
 from . import views
@@ -53,6 +54,7 @@ urlpatterns = [
     url(r'^valet/request/reparked/$', valet_drops_vehicle_at_new_location, name='reparked'),
     url(r'^valet/request/return/$', valet_returning_home, name='return'),
     url(r'^valet/request/completed/$', request_completed, name='completed'),
+    url(r'^valet/send-current-location/$', update_current_position, name='update-position'),
 
     # base index/home page
 	url(r'^$', views.Home.as_view(), name='home'),

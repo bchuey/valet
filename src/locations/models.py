@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 from django.db import models
 
 from accounts.models import PARKING_ZONES
+
+
 # Create your models here.
 class Location(models.Model):
 	

@@ -199,6 +199,9 @@ def valet_accepts_request(request):
 			repark.in_progress = True
 			repark.valet_start_pos = valet_starting_position
 			repark.save()
+
+			valet.is_available = False
+			valet.save()
 			# set a 'repark_id' session for the valet
 			request.session["repark_id"] = repark.id
 			serializer = ReparkSerializer(repark)
@@ -215,6 +218,10 @@ def valet_accepts_request(request):
 			# valet picks up car at user's last repark request's dropoff_location
 			dropoff.pickup_location = latest_repark_request.dropoff_location
 			dropoff.save()
+
+			valet.is_available = False
+			valet.save() 
+
 			request.session["dropoff_id"] = dropoff.id
 			serializer = DropoffSerializer(dropoff)
 
@@ -341,6 +348,7 @@ def valet_drops_vehicle_at_new_location(request):
 
 			serializer = ReparkSerializer(repark)
 
+			valet.is_available = True
 		# what to do if the request is a Dropoff
 		if 'dropoff_id' in request.session:
 
@@ -349,6 +357,7 @@ def valet_drops_vehicle_at_new_location(request):
 			dropoff.dropped_off_at = local_time_now
 			dropoff.save()
 
+			valet.is_available = True
 			serializer = DropoffSerializer(dropoff)
 
 		data = serializer.data
@@ -443,7 +452,18 @@ def charge_customer(customer_id):
 	)
 
 
+def update_current_position(request):
 
+	print request.POST
+	valet = request.user
+
+	# valet.current_position = 
+
+	serializer = UserSerializer(valet)
+	data = serializer.data
+
+
+	return Response(data, template_name='maps/valet/index.html')
 
 
 

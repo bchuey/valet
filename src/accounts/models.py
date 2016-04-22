@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+import locations
 from accounts.managers import UserManager
 
 def upload_to(instance, filename):
@@ -31,6 +32,9 @@ class User(AbstractBaseUser):
     profile_pic = models.ImageField(upload_to=upload_to, blank=True)
     # drivers_license = generic.GenericRelation('DriversLicense')
     is_available = models.BooleanField(default=False)
+
+    # do we set up a celery task to get this every second?
+    current_position = models.ForeignKey('locations.Location', null=True, blank=True)
 
     objects = UserManager()
 

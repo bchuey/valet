@@ -107,22 +107,30 @@ valet_nsp.on('connection', function(socket){
 
 	*/
 	client = redis.createClient();
+	client1 = redis.createClient();
 
 	// subscribe client to a channel
 	client.subscribe("valets");
+	client1.subscribe("query_valets");
+
+	client1.on("message", function(channel,data){
+		valet_nsp.emit("get-current-location");
+	});
+
+
 
 	// listen for pub from views.py
 	client.on("message", function(channel, data){
 		valet_nsp.emit("check-matching-valet",data);
 		console.log("received message from channel: valets");
-	})
+	});
 
 	// put valet in room for scheduled repark request
 	socket.on("valet-join-room", function(data){
 		room_number = data.request_uuid;
 		socket.join(room_number);
 		valet_nsp.to(room_number).emit("activate-directions-service", data);
-	})
+	});
 
 });
 

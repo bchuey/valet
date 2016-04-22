@@ -648,6 +648,26 @@
     });
 
 
+    socket.on("get-current-location", function(){
+
+      var url = 'send-current-location/';
+      var valet_current_position = {lat:current_latitude,lng:current_longitude};
+
+      $.ajax({
+
+        type: 'POST',
+        url: url,
+        data: valet_current_position,
+        success: function()
+        {
+
+        },
+
+      });
+      return false;
+
+    });
+
 {% endblock on_ready_js %}
 
 
