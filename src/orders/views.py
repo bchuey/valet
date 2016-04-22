@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from accounts.models import User
+from accounts.serializers import UserSerializer
 
 from locations.models import Location, IntersectionLatLng, ParkingSection
 from locations.serializers import IntersectionLatLngSerializer, ParkingSectionSerializer
@@ -127,7 +128,8 @@ def customer_submits_valet_request(request, format=None):
 			# send repark to celery task queue
 			# eta should be 30 to 45 mins before parking_exp_time
 
-			tasks.match_valet_with_repark.apply_async((scheduled_repark.id,), countdown=60)
+			# tasks.match_valet_with_repark.apply_async((scheduled_repark.id,), countdown=60)
+			tasks.query_valets.apply_async((scheduled_repark.id,), link=tasks.match_valet_with_repark.s(scheduled_repark.id))
 
 		data = serializer.data
 		print(data)
@@ -451,21 +453,35 @@ def charge_customer(customer_id):
 	  customer=customer_id # Previously stored, then retrieved
 	)
 
-
+@api_view(['POST',])
 def update_current_position(request):
 
-	print request.POST
+	# print request.POST 	# <QueryDict: {u'lat': [u'37.7082051'], u'lng': [u'-122.4433762']}>
+	# print request.POST['lat']
+	# print request.POST['lng']
 	valet = request.user
 
-	# valet.current_position = 
+	current_position = Location()
+	current_position.lat = request.POST['lat']
+	current_position.lng = request.POST['lng']
+	current_position.save()
+
+	print "current position of valet: "
+	print current_position.lat
+	print current_position.lng
+	print "================="
+
+	valet.current_position = current_position
+	valet.save()
 
 	serializer = UserSerializer(valet)
 	data = serializer.data
 
+	print "updated valets current position"
+	print "valet: " 
+	print data
 
 	return Response(data, template_name='maps/valet/index.html')
-
-
 
 
 

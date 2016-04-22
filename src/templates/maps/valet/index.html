@@ -622,6 +622,7 @@
     socket.on("check-matching-valet", function(data){
 
       var valet = "{{ request.user }}";
+      console.log(data.reparked_by);
 
       if(data.reparked_by.email === valet)
       {
@@ -660,7 +661,7 @@
         data: valet_current_position,
         success: function()
         {
-
+          console.log("new valet location sent");
         },
 
       });
