@@ -622,15 +622,18 @@
     socket.on("check-matching-valet", function(data){
 
       console.log("this is the data from socket.emit(): ");
-      console.log(data);
+      //console.log(data);
+
+      var output = JSON.parse(data);
+      //console.log(output);
 
       var valet = "{{ request.user }}";
 
-      if(data.reparked_by.email === valet)
+      if(output.reparked_by.email === valet)
       {
 
         // run ajax.POST request
-        $("#scheduled_repark_id").val(data.id);
+        $("#scheduled_repark_id").val(output.id);
         var url = 'request/accept/';
         $.ajax({
           type:"POST",

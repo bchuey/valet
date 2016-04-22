@@ -118,9 +118,5 @@ def match_valet_with_repark(valets, repark_id):
 	channel = scheduled_repark.request_uuid
 	r.publish("valets", data)
 
-	print "updated scheduled repark: "
-	print data
-
-
 	return data
 
