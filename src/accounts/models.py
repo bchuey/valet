@@ -4,6 +4,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from accounts.managers import UserManager
 
@@ -27,7 +30,7 @@ class User(AbstractBaseUser):
     is_valet = models.BooleanField(default=False)
     profile_pic = models.ImageField(upload_to=upload_to, blank=True)
     # drivers_license = generic.GenericRelation('DriversLicense')
-
+    is_available = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -74,6 +77,15 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def update_valet_is_available(sender, instance, created, *args, **kwargs):
+
+    if created:
+        instance.is_available = True
+        instance.save()
+
+
 
 
 # class Valet(User):

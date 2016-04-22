@@ -127,7 +127,7 @@ def customer_submits_valet_request(request, format=None):
 			# send repark to celery task queue
 			# eta should be 30 to 45 mins before parking_exp_time
 
-			tasks.match_valet_with_repark.delay(scheduled_repark.id, countdown=60)
+			tasks.match_valet_with_repark.apply_async((scheduled_repark.id,), countdown=60)
 
 		data = serializer.data
 		print(data)
