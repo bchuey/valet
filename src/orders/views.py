@@ -232,6 +232,10 @@ def valet_accepts_request(request):
 			scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
 
 			request.session["scheduled_repark_id"] = scheduled_repark.id
+
+			valet.is_available = False
+			valet.save()
+			
 			serializer = ScheduledReparkSerializer(scheduled_repark)
 
 

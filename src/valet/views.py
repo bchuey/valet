@@ -16,3 +16,5 @@ class UserMap(TemplateView):
 class ValetMap(TemplateView):
 
 	template_name = 'maps/valet/index.html'
+
+

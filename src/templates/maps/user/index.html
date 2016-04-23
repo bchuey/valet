@@ -117,6 +117,14 @@
 
       var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
 
+      var current_pos_img = {
+        url: 'http://127.0.0.1:8000/static/images/bullseye.png',
+        size: new google.maps.Size(32,32),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(0,16),
+      };
+      
+
       if(current_pos_marker){
 
         current_pos_marker.setPosition(markerLatLng);
@@ -127,6 +135,7 @@
         current_pos_marker = new google.maps.Marker({
           position: markerLatLng,
           map: map,
+          icon: current_pos_img,
           animation: google.maps.Animation.DROP,
         });
         console.log("initial current pos marker");
@@ -241,10 +250,17 @@
               draggable: true,
             });
 
+          var center_marker_img = {
+            url: 'http://127.0.0.1:8000/static/images/pin.png',
+            size: new google.maps.Size(32,32),
+            origin: new google.maps.Point(0,0),
+            anchor: new google.maps.Point(0,32),
+          };
 
           center_marker = new google.maps.Marker({
             position: pos,
             map: map,
+            icon: center_marker_img,
             animation: google.maps.Animation.DROP,
           });
 

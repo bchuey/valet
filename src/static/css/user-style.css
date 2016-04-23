@@ -40,27 +40,17 @@ html, body {
 
 #floating-button {
   position: absolute;
-  top: 10px;
-  left: 25%;
-  z-index: 5;
-  /*background-color: #fff;*/
-  padding: 5px;
-  /*border: 1px solid #999;*/
-  text-align: center;
-  font-family: 'Roboto','sans-serif';
-  line-height: 30px;
-  padding-left: 10px;
-}
-#floating-button {
-  position: absolute;
-  top: 50%;
+  top: 38%;
   left: 50%;
   margin-left: -180px;
   width: 350px;
   z-index: 5;
+  text-align:center;
   /*background-color: #fff;*/
   padding: 5px;
   /*border: 1px solid #999;*/
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
 }
 #floating-button2 {
   position: absolute;
