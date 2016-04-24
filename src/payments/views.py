@@ -119,7 +119,16 @@ def update_payment_method(request):
 
 			return Response(data, template_name='accounts/user/dashboard/subscription.html')
 
+	else:
 
+		context = {
+			'payment_methods': payment_methods,
+			'stripe_publishable_key': stripe_publishable_key,
+			'form': form,
+			'formset': formset,
+		}
+
+		return render(request, self.template, context)
 
 
 

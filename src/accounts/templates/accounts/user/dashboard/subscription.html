@@ -6,7 +6,7 @@
 {% block stripe %}
 <script type="text/javascript">
   // This identifies your website in the createToken call below
-  var stripe_pk = '{{ stripe_publishable_key }}'
+  var stripe_pk = '{{ stripe_publishable_key }}';
   Stripe.setPublishableKey(stripe_pk);
   // ...
 </script>
@@ -147,13 +147,23 @@ jQuery(function($) {
 					</tr>
 				</thead>
 				<body>
-					<form method="POST" action"">
+					<form method="POST" action"{% url 'accounts:update-payment' %}">
 					{{ formset.management_form }}
 					{% for form in formset %}
 						<tr>
-						{% for field in form %}
-							<td>{{ field }}</td>
-						{% endfor %}
+							<td>{{ form.customer_stripe_id }}</td>
+							<td class="switch">
+								<label for="{{ form.is_active.auto_id }}">
+									Off
+									{{ form.is_active }}
+									<span class="lever"></span>
+									On
+								</label>
+							</td>
+							<td>
+								{{ form.is_primary }}
+								<label for='{{ form.is_primary.auto_id }}'></label>
+							</td>
 						</tr>
 					{% endfor %}
 					</form>
