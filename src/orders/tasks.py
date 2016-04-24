@@ -24,33 +24,33 @@ from geopy.distance import vincenty
 # in callback
 	# run match_valet_with_repark
 
-@app.task(name='query_valets')
-def query_valets(repark_id):
+# @app.task(name='query_valets')
+# def query_valets(repark_id):
 
-	valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
-	valets = UserSerializer(valets,many=True)
-	valets = valets.data
-
-
-	scheduled_repark = ScheduledRepark.objects.get(id=repark_id)
-
-	serializer = ScheduledReparkSerializer(scheduled_repark)
-	data = serializer.data
-	# redis pub/sub
-	r = redis.StrictRedis()
-	channel = scheduled_repark.request_uuid
-	r.publish("query_valets", data)
+# 	valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
+# 	valets = UserSerializer(valets,many=True)
+# 	valets = valets.data
 
 
+# 	scheduled_repark = ScheduledRepark.objects.get(id=repark_id)
 
-	return valets
+# 	serializer = ScheduledReparkSerializer(scheduled_repark)
+# 	data = serializer.data
+# 	# redis pub/sub
+# 	r = redis.StrictRedis()
+# 	channel = scheduled_repark.request_uuid
+# 	r.publish("query_valets", data)
+
+
+
+# 	return valets
 
 @app.task(name='match_valet_with_repark')
-def match_valet_with_repark(valets, repark_id):
+def match_valet_with_repark(repark_id):
 
 	scheduled_repark = ScheduledRepark.objects.get(id=repark_id)
 
-	# valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
+	valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
 
 	"""
 	Calculate closest distance in miles
@@ -76,7 +76,7 @@ def match_valet_with_repark(valets, repark_id):
 	min_distance = 0
 	for valet in valets:
 		
-		if valet['current_position']:
+		if valet.is_authenticated and valet['current_position']:
 			location2 = (valet['current_position']['lat'], valet['current_position']['lng'])
 
 			distance = vincenty(location1,location2).miles
@@ -119,4 +119,28 @@ def match_valet_with_repark(valets, repark_id):
 	r.publish("valets", data)
 
 	return data
+
+@app.task(name='estimate_valet_eta')
+def estimate_valet_eta(request):
+
+	# query user
+	user = request.user
+	# location1 => user's locoation
+	location1 = (user.current_position.lat, user.current_position.lng)
+	# query all valets
+	valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
+	# location2 => valet's location
+	# loop through each valet location, calculate distance and time
+
+	eta = 0
+
+	for valet in valets:
+
+		location2 = (valet.current_position.lat, valet.current_position.lng)
+		"""
+		calcuate time
+		"""
+
+	return eta
+
 

@@ -47,14 +47,43 @@ jQuery(function($) {
 });
 
 
-// multiple 'is_primary' checkbox
-// $(this).checked
-// on other boxes, remove the 'checked'
-// grab that specific CC's ID
-// run a POST/PUT/PATCH
-// update which method is_primary
+
 
 {% endblock jquery %}
+
+{% block on_ready_js %}
+
+	// multiple 'is_primary' checkbox
+	// $(this).checked
+	// on other boxes, remove the 'checked'
+	// grab that specific CC's ID
+	// run a POST/PUT/PATCH
+	// update which method is_primary
+
+
+	// toggle on and off lever
+	// need to get correct value 
+	$("#paymentLever").click(function(){
+		var is_active_checkbox = document.getElementById('id_is_active');
+
+		is_active_checkbox.onchange = function(){
+			var url = 'update/';
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: $("#updatePaymentMethodForm").serialize(),
+				success: function(data){
+					Materialize.toast('Your payment method has been updated.', 8000, 'rounded');
+				},
+			});
+			return false;
+
+		}
+		
+	});
+	
+
+{% endblock on_ready_js %}
 
 {% block content %}
 <div class="row dashboard-wrapper">
@@ -118,22 +147,16 @@ jQuery(function($) {
 					</tr>
 				</thead>
 				<body>
-					{% for card in payment_methods %}
-					<tr>
-						<td>{{ card }}</td>
-						<td class="switch">
-							<label>
-						      Off
-						      <input type="checkbox">
-						      <span class="lever"></span>
-						      On
-						    </label>
-			    		</td>
-						<td>
-							<input type="checkbox" checked>
-						</td>
-					</tr>
+					<form method="POST" action"">
+					{{ formset.management_form }}
+					{% for form in formset %}
+						<tr>
+						{% for field in form %}
+							<td>{{ field }}</td>
+						{% endfor %}
+						</tr>
 					{% endfor %}
+					</form>
 				</body>
 			</table>
 		</div>

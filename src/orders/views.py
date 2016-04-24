@@ -128,8 +128,8 @@ def customer_submits_valet_request(request, format=None):
 			# send repark to celery task queue
 			# eta should be 30 to 45 mins before parking_exp_time
 
-			# tasks.match_valet_with_repark.apply_async((scheduled_repark.id,), countdown=60)
-			tasks.query_valets.apply_async((scheduled_repark.id,), link=tasks.match_valet_with_repark.s(scheduled_repark.id))
+			# tasks.query_valets.apply_async((scheduled_repark.id,), link=tasks.match_valet_with_repark.s(scheduled_repark.id))
+			tasks.match_valet_with_repark.apply_async(scheduled_repark.id, countdown=60)
 
 		data = serializer.data
 		print(data)
@@ -188,10 +188,11 @@ def valet_accepts_request(request):
 
 		valet = request.user
 
-		valet_starting_position = Location()
-		valet_starting_position.lat = request.POST['lat']
-		valet_starting_position.lng = request.POST['lng']
-		valet_starting_position.save()
+		# valet_starting_position = Location()
+		# valet_starting_position.lat = request.POST['lat']
+		# valet_starting_position.lng = request.POST['lng']
+		# valet_starting_position.save()
+		valet_starting_position = valet.current_position
 
 		# have to take into account if the request is a Dropoff
 		if request.POST['repark_id']:
@@ -230,11 +231,12 @@ def valet_accepts_request(request):
 		if request.POST['scheduled_repark_id']:
 
 			scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
-
-			request.session["scheduled_repark_id"] = scheduled_repark.id
+			scheduled_repark.valet_start_pos = valet_starting_position
 
 			valet.is_available = False
 			valet.save()
+
+			request.session["scheduled_repark_id"] = scheduled_repark.id
 			
 			serializer = ScheduledReparkSerializer(scheduled_repark)
 
@@ -336,6 +338,8 @@ def valet_on_route(request):
 @login_required(login_url=settings.LOGIN_URL)
 @user_passes_test(is_valet_check)
 def valet_drops_vehicle_at_new_location(request):
+
+	valet = request.user
 
 	if request.method == "POST":
 
@@ -463,7 +467,7 @@ def update_current_position(request):
 	# print request.POST 	# <QueryDict: {u'lat': [u'37.7082051'], u'lng': [u'-122.4433762']}>
 	# print request.POST['lat']
 	# print request.POST['lng']
-	valet = request.user
+	user = request.user
 
 	current_position = Location()
 	current_position.lat = request.POST['lat']
@@ -475,10 +479,10 @@ def update_current_position(request):
 	print current_position.lng
 	print "================="
 
-	valet.current_position = current_position
-	valet.save()
+	user.current_position = current_position
+	user.save()
 
-	msg = "Updated valet's current position"
+	msg = "Updated current position"
 
 	return Response(msg, template_name='maps/valet/index.html')
 

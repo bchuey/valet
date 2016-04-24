@@ -119,15 +119,12 @@ valet_nsp.on('connection', function(socket){
 	});
 
 
-	client1.subscribe("query_valets");
+	// client1.subscribe("query_valets");
 
-	client1.on("message", function(channel,data){
-		valet_nsp.emit("get-current-location");
-	});
+	// client1.on("message", function(channel,data){
+	// 	valet_nsp.emit("get-current-location");
+	// });
 
-
-
-	
 
 	// put valet in room for scheduled repark request
 	socket.on("valet-join-room", function(data){

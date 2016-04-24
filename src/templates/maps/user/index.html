@@ -121,7 +121,7 @@
         url: 'http://127.0.0.1:8000/static/images/bullseye.png',
         size: new google.maps.Size(32,32),
         origin: new google.maps.Point(0,0),
-        anchor: new google.maps.Point(0,16),
+        anchor: new google.maps.Point(16,16),
       };
       
 
@@ -141,6 +141,26 @@
         console.log("initial current pos marker");
 
       }
+
+      var user_new_position = {
+        lat: current_latitude,
+        lng: current_longitude,
+      }
+
+      var url = "send-current-location/";
+
+      $.ajax({
+
+        type: "POST",
+        url: url,
+        data: user_new_position,
+        success: function(data){
+          console.log('updated position');
+        },
+
+
+      });
+      return false;
 
       map.setCenter(markerLatLng);
 
@@ -181,10 +201,6 @@
 
     // Set CSS for the control border.
     controlUI = document.createElement('div');
-    controlUI.style.backgroundColor = '#fff';
-    controlUI.style.border = '2px solid #fff';
-    controlUI.style.borderRadius = '3px';
-    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
     controlUI.style.cursor = 'pointer';
     controlUI.style.marginBottom = '22px';
     controlUI.style.textAlign = 'center';
@@ -199,7 +215,10 @@
     controlText.style.lineHeight = '38px';
     controlText.style.paddingLeft = '5px';
     controlText.style.paddingRight = '5px';
-    controlText.innerHTML = '+';
+    controlText.style.backgroundImage = "url(http://127.0.0.1:8000/static/images/recenter.png)";
+    controlText.style.height = '32px';
+    controlText.style.width = '32px';
+    //controlText.innerHTML = '+';
     controlUI.appendChild(controlText);
 
     // Setup the click event listeners: simply set the map to center
@@ -254,7 +273,7 @@
             url: 'http://127.0.0.1:8000/static/images/pin.png',
             size: new google.maps.Size(32,32),
             origin: new google.maps.Point(0,0),
-            anchor: new google.maps.Point(0,32),
+            anchor: new google.maps.Point(16,32),
           };
 
           center_marker = new google.maps.Marker({
@@ -529,7 +548,7 @@
       console.log("request has been accepted");
       Materialize.toast('Your request has been accepted.', 3000, 'rounded');
 
-      marker.setMap(null);
+      center_marker.setMap(null);
       marker_locations = [];
 
 

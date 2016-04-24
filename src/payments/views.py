@@ -6,11 +6,18 @@ from django.shortcuts import render
 from django.views.generic import View, TemplateView, ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
+from django.forms.formsets import formset_factory
+from django.forms import modelformset_factory
 
 from accounts.models import User
 
 from payments.models import PaymentMethod
-from payments.forms import AddPaymentMethodForm
+from payments.forms import AddPaymentMethodForm, UpdatePaymentMethodForm
+
+from payments.serializers import PaymentMethodSerializer
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 import stripe
 
@@ -26,7 +33,11 @@ class PaymentMethodView(View):
 
 		user = request.user
 		payment_methods = user.payment_method.all()
-		print payment_methods
+
+		PaymentMethodFormSet = modelformset_factory(PaymentMethod, form=UpdatePaymentMethodForm, extra=0)
+		formset = PaymentMethodFormSet(queryset=payment_methods)
+
+		# print payment_methods
 		stripe_publishable_key = settings.STRIPE_TEST_PUBLISHABLE_KEY
 		form = self.form
 
@@ -34,6 +45,7 @@ class PaymentMethodView(View):
 			'payment_methods': payment_methods,
 			'stripe_publishable_key': stripe_publishable_key,
 			'form': form,
+			'formset': formset,
 		}
 
 		return render(request, self.template, context)
@@ -63,6 +75,49 @@ class PaymentMethodView(View):
 		print customer_payment_method
 
 		return HttpResponseRedirect('%s'%(reverse('accounts:payment')))
+
+@api_view(['POST',])
+def update_payment_method(request):
+
+	user = request.user
+	payment_methods = user.payment_method.all()
+	PaymentMethodFormSet = modelformset_factory(PaymentMethod, form=UpdatePaymentMethodForm, extra=0)
+	formset = PaymentMethodFormSet(queryset=payment_methods)
+
+	if request.method == "POST":
+
+		formset = PaymentMethodFormSet(request.POST, queryset=payment_methods)
+
+		if formset.is_valid():
+
+
+			is_active_state = request.POST.get('on', False)
+
+			payment_account = user.payment_method.get(customer_stripe_id=request.POST['customer_stripe_id'])
+			# print payment_account
+
+			if request.POST['is_active'] == 'on':
+
+				payment_account.is_active = True
+
+			else:
+
+				payment_account.is_active = False
+
+			if request.POST['is_primary'] == 'on':
+
+				payment_account.is_primary = True
+
+			else:
+
+				payment_account.is_primary = False
+
+			payment_account.save()
+
+			serializer = PaymentMethodSerializer(payment_account)
+			data = serializer.data
+
+			return Response(data, template_name='accounts/user/dashboard/subscription.html')
 
 
 
