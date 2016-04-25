@@ -14,16 +14,10 @@ class AddPaymentMethodForm(forms.Form):
 
 class UpdatePaymentMethodForm(forms.ModelForm):
 
-	# customer_stripe_id = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'disabled':True}))
-	# is_active = forms.BooleanField()
-	# is_primary = forms.BooleanField()
+
 
 	class Meta:
 
 		model = PaymentMethod
-		fields = ('customer_stripe_id', 'is_active', 'is_primary')
-		widgets = {
-			'customer_stripe_id': forms.TextInput(attrs={'disabled':True}),
-		}
-
-
+		fields = ('is_active', 'is_primary')
+		

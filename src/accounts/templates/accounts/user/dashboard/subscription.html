@@ -53,35 +53,6 @@ jQuery(function($) {
 
 {% block on_ready_js %}
 
-	// multiple 'is_primary' checkbox
-	// $(this).checked
-	// on other boxes, remove the 'checked'
-	// grab that specific CC's ID
-	// run a POST/PUT/PATCH
-	// update which method is_primary
-
-
-	// toggle on and off lever
-	// need to get correct value 
-	$("#paymentLever").click(function(){
-		var is_active_checkbox = document.getElementById('id_is_active');
-
-		is_active_checkbox.onchange = function(){
-			var url = 'update/';
-			$.ajax({
-				type: "POST",
-				url: url,
-				data: $("#updatePaymentMethodForm").serialize(),
-				success: function(data){
-					Materialize.toast('Your payment method has been updated.', 8000, 'rounded');
-				},
-			});
-			return false;
-
-		}
-		
-	});
-	
 
 {% endblock on_ready_js %}
 
@@ -105,26 +76,22 @@ jQuery(function($) {
 					<div class="input-field col s10">
 						{{ form.cc_number.label }}
 						{{ form.cc_number }}
-						<!-- <input type="text" id="cc_number" name="cc_number" size="20" data-stripe="number"/>
-						<label for="cc_number">Card Number</label> -->
+
 					</div>
 					<div class="input-field col s2">
 						{{ form.cc_cvc.label }}
 						{{ form.cc_cvc }}
-						<!-- <input type="text" id="cc_cvc" name="cc_cvc" size="4" data-stripe="cvc"/>
-						<label for="cc_cvc">CVC</label> -->
+
 					</div>
 				</div>
 				<div class="row">
 					<div class="input-field col s6">
-						<!-- <input type="text" id="cc_exp_month" name="cc_exp_month" size="2" data-stripe="exp-month"/>
-						<label for="cc_exp_month">Exp Month</label> -->
+
 						{{ form.cc_exp_month.label }}
 						{{ form.cc_exp_month }}
 					</div>
 					<div class="input-field col s6">
-						<!-- <input type="text" id="cc_exp_year" name="cc_exp_year" size="4" data-stripe="exp-year"/>
-						<label for="cc_exp_year">Exp Year</label> -->
+
 						{{ form.cc_exp_year.label }}
 						{{ form.cc_exp_year}}
 					</div>
@@ -138,6 +105,9 @@ jQuery(function($) {
 		</div>
 
 		<div class='col s12'>
+			<form method="POST" action="{% url 'accounts:update-payment' %}" >
+			{% csrf_token %}
+			{{ formset.management_form }}
 			<table>
 				<thead>
 					<tr>
@@ -146,12 +116,11 @@ jQuery(function($) {
 						<th>Is Primary?</th>
 					</tr>
 				</thead>
-				<body>
-					<form method="POST" action"{% url 'accounts:update-payment' %}">
-					{{ formset.management_form }}
+				<tbody>
+					
 					{% for form in formset %}
 						<tr>
-							<td>{{ form.customer_stripe_id }}</td>
+							<td>{{ form.instance.customer_stripe_id }}</td>
 							<td class="switch">
 								<label for="{{ form.is_active.auto_id }}">
 									Off
@@ -162,13 +131,19 @@ jQuery(function($) {
 							</td>
 							<td>
 								{{ form.is_primary }}
-								<label for='{{ form.is_primary.auto_id }}'></label>
+								<label for="{{ form.is_primary.auto_id }}"></label>
 							</td>
+							<input type="hidden" id='id_{{ form.prefix }}-id' name='{{ form.prefix }}-id' value="{{ form.id.value }}"/>
+
 						</tr>
 					{% endfor %}
-					</form>
-				</body>
+					<tr>
+					<td><button type="submit" class="waves-effect waves-light btn" />Update</button>
+					</tr>
+					
+				</tbody>
 			</table>
+			</form>
 		</div>
 	</div>
 </div>

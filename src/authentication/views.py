@@ -32,6 +32,11 @@ class Register(View):
 			'form': form,
 		}
 
+		print "-----------"
+		print "new user register:"
+		print request.POST
+		print "------------"
+
 		if form.is_valid():
 
 			email = form.cleaned_data.get('email')

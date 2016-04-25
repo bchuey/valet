@@ -86,51 +86,44 @@ def update_payment_method(request):
 
 	if request.method == "POST":
 
+		print '==========='
+		print request.POST
+		print '==========='
+		"""
+
+		u'form-0-id': [u'1'],
+		u'form-0-is_primary': [u'on'],
+
+		u'form-1-id': [u'2'],
+		u'form-1-is_active': [u'on'], 
+
+		u'form-2-id': [u'3'], 
+		u'form-2-is_active': [u'on'], 
+		 
+		u'form-3-id': [u'4'],
+		u'form-3-is_primary': [u'on'], 
+		u'form-3-is_active': [u'on']
+		
+		"""
+
 		formset = PaymentMethodFormSet(request.POST, queryset=payment_methods)
 
 		if formset.is_valid():
 
+			formset.save()
 
-			is_active_state = request.POST.get('on', False)
-
-			payment_account = user.payment_method.get(customer_stripe_id=request.POST['customer_stripe_id'])
-			# print payment_account
-
-			if request.POST['is_active'] == 'on':
-
-				payment_account.is_active = True
-
-			else:
-
-				payment_account.is_active = False
-
-			if request.POST['is_primary'] == 'on':
-
-				payment_account.is_primary = True
-
-			else:
-
-				payment_account.is_primary = False
-
-			payment_account.save()
-
-			serializer = PaymentMethodSerializer(payment_account)
+			serializer = PaymentMethodSerializer(payment_methods, many=True)
 			data = serializer.data
+			print 'formset is saved'
+			# return Response(data, template_name='accounts/user/dashboard/subscription.html')
+			return HttpResponseRedirect('%s'%(reverse('accounts:payment')))
+		else:
 
-			return Response(data, template_name='accounts/user/dashboard/subscription.html')
+			print 'formset is invalid'
+			return HttpResponseRedirect('%s'%(reverse('accounts:payment')))
 
 	else:
 
-		context = {
-			'payment_methods': payment_methods,
-			'stripe_publishable_key': stripe_publishable_key,
-			'form': form,
-			'formset': formset,
-		}
-
-		return render(request, self.template, context)
-
-
-
-
 		
+		print 'request is not POST'
+		return HttpResponseRedirect('%s'%(reverse('accounts:payment')))
