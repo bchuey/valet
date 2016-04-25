@@ -45,7 +45,8 @@ class UserProfileView(LoginRequiredMixin, View):
 		form = self.form(request.POST)
 		if form.is_valid():
 
-			# update
+			form.save()
+			
 			return HttpResponseRedirect('%s'%(reverse('accounts:profile')))
 
 class ValetProfileView(LoginRequiredMixin, View):

@@ -23,13 +23,14 @@ class UserAdmin(BaseUserAdmin):
         ('Permissions', {'fields': ('is_valet','is_admin',)}),
         ('Profile Picture', {'fields': ('profile_pic',)}),
         ('Current Status', {'fields': ('is_available',)}),
+        ('Current Position',{'fields': ('current_position',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name','last_name','date_of_birth', 'proifle_pic', 'password1', 'password2','is_valet','is_available')}
+            'fields': ('email', 'first_name','last_name','date_of_birth', 'proifle_pic', 'password1', 'password2','is_valet','is_available','current_position')}
         ),
     )
     search_fields = ('email',)

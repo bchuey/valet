@@ -11,8 +11,9 @@ var redis = require('redis');
 //var store = redis.createClient();
 //var pub = redis.createClient();
 // var sub = redis.createClient();
-var client;
-
+var valet_client;
+var valet_client1;
+var user_client;
 
 
 // create custom namespace for Users
@@ -41,6 +42,14 @@ usr_nsp.on('connection', function(socket){
 		room_number = data.request_uuid;
 		socket.join(room_number);
 		valet_nsp.emit("incoming-scheduled-request", data);
+	});
+
+	user_client = redis.createClient();
+	user_client.subscribe("users");
+
+	user_client.on("message", function(channel, data){
+
+		socket.emit("calculate-distance", data);
 	});
 
 
@@ -106,13 +115,13 @@ valet_nsp.on('connection', function(socket){
 		- run socket.emit("check-matching-valet", data);
 
 	*/
-	client = redis.createClient();
-	client1 = redis.createClient();
+	valet_client = redis.createClient();
+	valet_client1 = redis.createClient();
 
 	// subscribe client to a channel
-	client.subscribe("valets");
+	valet_client.subscribe("valets");
 	// listen for pub from views.py
-	client.on("message", function(channel, data){
+	valet_client.on("message", function(channel, data){
 
 		valet_nsp.emit("check-matching-valet",data);
 		

@@ -2,7 +2,6 @@ from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
@@ -23,7 +22,7 @@ from orders.models import Repark, Dropoff, ScheduledRepark
 from orders.serializers import ReparkSerializer, DropoffSerializer, ScheduledReparkSerializer
 
 from rest_framework import generics, permissions, viewsets
-from rest_framework.decorators import detail_route, list_route, api_view
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 import datetime
@@ -203,8 +202,7 @@ def valet_accepts_request(request):
 			repark.valet_start_pos = valet_starting_position
 			repark.save()
 
-			valet.is_available = False
-			valet.save()
+
 			# set a 'repark_id' session for the valet
 			request.session["repark_id"] = repark.id
 			serializer = ReparkSerializer(repark)
@@ -222,8 +220,6 @@ def valet_accepts_request(request):
 			dropoff.pickup_location = latest_repark_request.dropoff_location
 			dropoff.save()
 
-			valet.is_available = False
-			valet.save() 
 
 			request.session["dropoff_id"] = dropoff.id
 			serializer = DropoffSerializer(dropoff)
@@ -232,14 +228,17 @@ def valet_accepts_request(request):
 
 			scheduled_repark = ScheduledRepark.objects.get(id=request.POST['scheduled_repark_id'])
 			scheduled_repark.valet_start_pos = valet_starting_position
+			scheduled_repark.in_progress = True
+			scheduled_repark.save()
 
-			valet.is_available = False
-			valet.save()
+			
 
 			request.session["scheduled_repark_id"] = scheduled_repark.id
 			
 			serializer = ScheduledReparkSerializer(scheduled_repark)
 
+		valet.is_available = False
+		valet.save()
 
 		data = serializer.data
 
@@ -269,6 +268,13 @@ def valet_arrives_at_vehicle(request):
 			dropoff.picked_up_at = local_time_now
 			dropoff.save()
 			serializer = DropoffSerializer(dropoff)
+
+		if 'scheduled_repark_id' in request.session:
+
+			scheduled_repark = ScheduledRepark.objects.get(id=request.session["scheduled_repark_id"])
+			scheduled_repark.picked_up_at = local_time_now
+			scheduled_repark.save()
+			serializer = ScheduledReparkSerializer(scheduled_repark)
 
 		data = serializer.data
 
@@ -303,6 +309,16 @@ def valet_on_route(request):
 			user = dropoff.requested_by
 
 			serializer = DropoffSerializer(dropoff)
+
+		if 'scheduled_repark_id' in request.session:
+
+			scheduled_repark = ScheduledRepark.objects.get(id=request.session["scheduled_repark_id"])
+			scheduled_repark.enroute_at = local_time_now
+			scheduled_repark.save()
+
+			user = scheduled_repark.requested_by
+
+			serializer = ScheduledReparkSerializer(scheduled_repark)
 
 		data = serializer.data
 
@@ -356,9 +372,9 @@ def valet_drops_vehicle_at_new_location(request):
 			repark.dropped_off_at = local_time_now
 			repark.save()
 
+			valet.is_available = True
 			serializer = ReparkSerializer(repark)
 
-			valet.is_available = True
 		# what to do if the request is a Dropoff
 		if 'dropoff_id' in request.session:
 
@@ -369,6 +385,16 @@ def valet_drops_vehicle_at_new_location(request):
 
 			valet.is_available = True
 			serializer = DropoffSerializer(dropoff)
+
+		if 'scheduled_repark_id' in request.session:
+
+			scheduled_repark = ScheduledRepark.objects.get(id=request.session["scheduled_repark_id"])
+			scheduled_repark.dropoff_location = dropoff_location
+			scheduled_repark.dropped_off_at = local_time_now
+			scheduled_repark.save()
+
+			valet.is_available = True
+			serializer = ScheduledReparkSerializer(scheduled_repark)
 
 		data = serializer.data
 
@@ -388,6 +414,10 @@ def valet_returning_home(request):
 		if 'dropoff_id' in request.session:
 			dropoff = Dropoff.objects.get(id=request.session["dropoff_id"])
 			serializer = DropoffSerializer(dropoff)
+
+		if 'scheduled_repark_id' in request.session:
+			scheduled_repark = ScheduledRepark.objects.get(id=request.session["scheduled_repark_id"])
+			serializer = ScheduledReparkSerializer(scheduled_repark)
 
 		data = serializer.data
 
@@ -413,18 +443,18 @@ def request_completed(request):
 			repark.save()
 
 			customer = repark.requested_by
-			customer_primary_payment_method = PaymentMethod.objects.all().filter(customer=customer).filter(is_primary=1)
+			# customer_primary_payment_method = PaymentMethod.objects.all().filter(customer=customer).filter(is_primary=1)
 
 			# print customer_primary_payment_method[0]
 
-			customer_id = customer_primary_payment_method[0].customer_stripe_id
-			charge_customer(customer_id)
+			# customer_id = customer_primary_payment_method[0].customer_stripe_id
+			charge_customer(customer)
 
 			del request.session["repark_id"]
 			try:
 				print(request.session["repark_id"])
 			except:
-				print("repark.session['repark_id'] is deleted")
+				print("request.session['repark_id'] is deleted")
 
 		if 'dropoff_id' in request.session:
 
@@ -436,15 +466,33 @@ def request_completed(request):
 			dropoff.save()
 
 			customer = dropoff.requested_by
-			customer_primary_payment_method = PaymentMethod.objects.all().filter(customer=customer).filter(is_primary=1)
-			customer_id = customer_primary_payment_method.customer_stripe_id
-			charge_customer(customer_id)
+			# customer_primary_payment_method = PaymentMethod.objects.all().filter(customer=customer).filter(is_primary=1)
+			# customer_id = customer_primary_payment_method[0].customer_stripe_id
+			charge_customer(customer)
 
 			del request.session["dropoff_id"]
 			try:
 				print(request.session["dropoff_id"])
 			except:
-				print("repark.session['dropoff_id'] is deleted")
+				print("request.session['dropoff_id'] is deleted")
+
+		if 'scheduled_repark_id' in request.session:
+
+			scheduled_repark = ScheduledRepark.objects.get(id=request.session['scheduled_repark_id'])
+			scheduled_repark.is_active = False
+			scheduled_repark.in_progress = False
+			scheduled_repark.is_completed = True
+			scheduled_repark.completed_at = local_time_now
+			scheduled_repark.save()
+
+			customer = scheduled_repark.requested_by
+			charge_customer(customer)
+
+			del request.session["scheduled_repark_id"]
+			try:
+				print(request.session["scheduled_repark_id"])
+			except:
+				print("request.session['scheduled_repark_id'] is deleted")
 
 
 		return HttpResponseRedirect('%s'%(reverse('valet-map')))
@@ -453,12 +501,23 @@ def request_completed(request):
 # ==============
 # Stripe payments
 # ==============
-def charge_customer(customer_id):
+def charge_customer(customer):
+
+	"""
+	After the  'request' is complete,
+	query customer's payment methods,
+	filter cards w/ is_primary tag,
+	grab the first one,
+	charge the customer 
+	"""
+
+	payment_method = customer.payment_method.all().filter(is_primary=1)[0]
+	customer_stripe_id = payment_method.customer_stripe_id
 
 	stripe.Charge.create(
 	  amount=1500, # $15.00 this time
 	  currency="usd",
-	  customer=customer_id # Previously stored, then retrieved
+	  customer=customer_stripe_id # Previously stored, then retrieved
 	)
 
 @api_view(['POST',])
@@ -484,7 +543,11 @@ def update_current_position(request):
 
 	msg = "Updated current position"
 
-	return Response(msg, template_name='maps/valet/index.html')
+	if user.is_valet:
+		return Response(msg, template_name='maps/valet/index.html')
+
+	else:
+		return Response(msg, template_name='maps/user/index.html')
 
 
 

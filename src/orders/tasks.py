@@ -120,27 +120,57 @@ def match_valet_with_repark(repark_id):
 
 	return data
 
-@app.task(name='estimate_valet_eta')
-def estimate_valet_eta(request):
+# @app.task(name='estimate_valet_eta')
+# def estimate_valet_eta(request):
 
-	# query user
-	user = request.user
-	# location1 => user's locoation
-	location1 = (user.current_position.lat, user.current_position.lng)
-	# query all valets
+# 	# query user
+# 	user = request.user
+# 	# location1 => user's locoation
+# 	location1 = (user.current_position.lat, user.current_position.lng)
+# 	# query all valets
+# 	valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
+# 	# location2 => valet's location
+# 	# loop through each valet location, calculate distance and time
+
+# 	eta = 0
+
+# 	for valet in valets:
+
+# 		location2 = (valet.current_position.lat, valet.current_position.lng)
+# 		"""
+# 		calcuate time
+# 		"""
+
+# 	return eta
+
+@app.task(name='calculate_valet_distances')
+def calculate_valet_distances(request):
+
 	valets = User.objects.all().filter(is_valet=1).filter(is_available=1)
-	# location2 => valet's location
-	# loop through each valet location, calculate distance and time
 
-	eta = 0
+	valet_positions = []
 
 	for valet in valets:
 
-		location2 = (valet.current_position.lat, valet.current_position.lng)
-		"""
-		calcuate time
-		"""
+		valet_positions.append({'lat':valet['current_position']['lat'], 'lng':valet['current_position']['lng']})
 
-	return eta
+
+	json = JSONRenderer().render(valet_positions)
+	data = json
+
+	r = redis.StrictRedis()
+	r.publish("users", data)
+
+	return data
+
+
+
+
+
+
+
+
+
+
 
 

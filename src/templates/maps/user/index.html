@@ -18,6 +18,8 @@
   var centerControlDiv;
   var controlUI;
   var controlText;
+  var service;
+  var user_new_position;
 
   function geocodeLatLng(geocoder, lat, lng) 
   {
@@ -43,64 +45,6 @@
       });
   }
 
-  function updateCurrentLocation()
-  {
-      // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-
-
-            document.getElementById('id_lat').value = pos.lat;
-            document.getElementById('id_lng').value = pos.lng;
-
-            console.log("new lat position: " + pos.lat);
-            console.log("new lng position: " + pos.lng);
-
-            
-            // draw map
-            // set center to the currentPosition lat, lng
-            map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: pos.lat, lng: pos.lng},
-          zoom: 15,
-          
-        });
-
-
-        marker = new google.maps.Marker({
-          position: pos,
-          map: map,
-          animation: google.maps.Animation.DROP,
-          draggable: true,
-
-
-        });
-
-
-        var geocoder = new google.maps.Geocoder;
-        geocodeLatLng(geocoder, pos.lat, pos.lng);
-        //console.log(result);
-
-        
-
-        }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
-          });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, infoWindow, map.getCenter());
-        }
-
-      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-                            'Error: The Geolocation service failed.' :
-                            'Error: Your browser doesn\'t support geolocation.');
-      }
-  }
 
   function showLocation(position) {
       current_latitude = position.coords.latitude;
@@ -142,7 +86,7 @@
 
       }
 
-      var user_new_position = {
+      user_new_position = {
         lat: current_latitude,
         lng: current_longitude,
       }
@@ -163,6 +107,8 @@
       return false;
 
       map.setCenter(markerLatLng);
+
+      
 
   }
    
@@ -705,6 +651,44 @@
           console.log("request was completed");
         }
 
+      });
+
+    });
+
+    socket.on("calculate-distance", function(data){
+
+
+      var output = JSON.parse(data);
+      console.log('this is the array of locations: ');
+      console.log(output);
+
+      // loop through the array of locations
+      // calculate using distance matrix
+      // grab the times
+      // run calculation to find the average time
+      // display the time somewhere
+
+      var distance_matrix_destination = user_new_position.lat + ',' + user_new_position.lng;
+
+      // run distance matrix to get the time
+      service = new google.maps.DistanceMatrixService;
+      service.getDistanceMatrix({
+        origins: [origin1],
+        destinations: [distance_matrix_destination],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false
+      }, function(response, status) {
+        if (status !== google.maps.DistanceMatrixStatus.OK) {
+          alert('Error was: ' + status);
+        } else {
+          
+          console.log('distance matrix response: ');
+          console.log(response);
+
+
+        }
       });
 
     });

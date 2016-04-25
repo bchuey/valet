@@ -86,26 +86,6 @@ def update_payment_method(request):
 
 	if request.method == "POST":
 
-		print '==========='
-		print request.POST
-		print '==========='
-		"""
-
-		u'form-0-id': [u'1'],
-		u'form-0-is_primary': [u'on'],
-
-		u'form-1-id': [u'2'],
-		u'form-1-is_active': [u'on'], 
-
-		u'form-2-id': [u'3'], 
-		u'form-2-is_active': [u'on'], 
-		 
-		u'form-3-id': [u'4'],
-		u'form-3-is_primary': [u'on'], 
-		u'form-3-is_active': [u'on']
-		
-		"""
-
 		formset = PaymentMethodFormSet(request.POST, queryset=payment_methods)
 
 		if formset.is_valid():
