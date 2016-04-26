@@ -13,6 +13,7 @@ from accounts.serializers import UserSerializer
 
 from locations.models import Location, IntersectionLatLng, ParkingSection
 from locations.serializers import IntersectionLatLngSerializer, ParkingSectionSerializer
+from locations.forms import LocationForm
 
 from payments.models import PaymentMethod
 
@@ -20,6 +21,7 @@ from payments.models import PaymentMethod
 from orders import tasks
 from orders.models import Repark, Dropoff, ScheduledRepark
 from orders.serializers import ReparkSerializer, DropoffSerializer, ScheduledReparkSerializer
+from orders.forms import OrderForm
 
 from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import api_view
@@ -59,81 +61,86 @@ def customer_submits_valet_request(request, format=None):
 
 	if request.method == "POST":
 
-		print request.POST
+		form = OrderForm(request.POST)
 
-		# users current position
-		location = Location()
-		location.lat = request.POST['lat']
-		location.lng = request.POST['lng']
-		location.full_address = request.POST['address']
-		location.save()
+		if form.is_valid():
 
-		if request.POST['is_repark']:
 
-			# create Repark instancee
-			repark = Repark()
-			repark.requested_by = customer
-			repark.pickup_location = location
-			repark.requested_at = local_time_now
-			repark.save()
-			request.session["repark_id"] = repark.id
+			print request.POST
 
-			serializer = ReparkSerializer(repark)
+			# users current position
+			location = Location()
+			location.lat = request.POST['lat']
+			location.lng = request.POST['lng']
+			location.full_address = request.POST['address']
+			location.save()
 
-		if request.POST['is_dropoff']:
+			if request.POST['is_repark']:
 
-			# retrieve latest request
-			last_request = customer.orders_repark_customer_related.latest('completed_at')
+				# create Repark instancee
+				repark = Repark()
+				repark.requested_by = customer
+				repark.pickup_location = location
+				repark.requested_at = local_time_now
+				repark.save()
+				request.session["repark_id"] = repark.id
+
+				serializer = ReparkSerializer(repark)
+
+			if request.POST['is_dropoff']:
+
+				# retrieve latest request
+				last_request = customer.orders_repark_customer_related.latest('completed_at')
+				
+				# create Dropoff instance
+				dropoff = Dropoff()
+				dropoff.requested_by = customer
+
+				# vehicle pickup location is the last request's dropoff location
+				dropoff.pickup_location = last_request.dropoff_location
+				# vehicle dropoff location is location of user's current position
+				dropoff.dropoff_location = location
+				dropoff.requested_at = local_time_now
+				dropoff.save()
+				request.session["dropoff_id"] = dropoff.id
+
+				serializer = DropoffSerializer(dropoff)
 			
-			# create Dropoff instance
-			dropoff = Dropoff()
-			dropoff.requested_by = customer
+			if request.POST['is_scheduled_repark']:
 
-			# vehicle pickup location is the last request's dropoff location
-			dropoff.pickup_location = last_request.dropoff_location
-			# vehicle dropoff location is location of user's current position
-			dropoff.dropoff_location = location
-			dropoff.requested_at = local_time_now
-			dropoff.save()
-			request.session["dropoff_id"] = dropoff.id
+				scheduled_repark = ScheduledRepark()
+				scheduled_repark.requested_by = customer
+				scheduled_repark.pickup_location = location
+				scheduled_repark.scheduled_start_date = request.POST['scheduled_start_date']
+				scheduled_repark.scheduled_end_date = request.POST['scheduled_end_date']
+				scheduled_repark.time_limit = request.POST['time_limit']
+				scheduled_repark.requested_at = local_time_now
 
-			serializer = DropoffSerializer(dropoff)
-		
-		if request.POST['is_scheduled_repark']:
+				"""
+				Calculate the expiration time based on when user requested repark
+				"""
 
-			scheduled_repark = ScheduledRepark()
-			scheduled_repark.requested_by = customer
-			scheduled_repark.pickup_location = location
-			scheduled_repark.scheduled_start_date = request.POST['scheduled_start_date']
-			scheduled_repark.scheduled_end_date = request.POST['scheduled_end_date']
-			scheduled_repark.time_limit = request.POST['time_limit']
-			scheduled_repark.requested_at = local_time_now
-
-			"""
-			Calculate the expiration time based on when user requested repark
-			"""
-
-			parking_exp_time = local_time_now + datetime.timedelta(hours=int(scheduled_repark.time_limit))
-			scheduled_repark.parking_exp_time = parking_exp_time
+				parking_exp_time = local_time_now + datetime.timedelta(hours=int(scheduled_repark.time_limit))
+				scheduled_repark.parking_exp_time = parking_exp_time
 
 
-			scheduled_repark.save()
+				scheduled_repark.save()
 
-			request.session["scheduled_repark_id"] = scheduled_repark.id
+				request.session["scheduled_repark_id"] = scheduled_repark.id
 
-			serializer = ScheduledReparkSerializer(scheduled_repark)
+				serializer = ScheduledReparkSerializer(scheduled_repark)
 
 
-			# send repark to celery task queue
-			# eta should be 30 to 45 mins before parking_exp_time
+				# send repark to celery task queue
+				# eta should be 30 to 45 mins before parking_exp_time
 
-			# tasks.query_valets.apply_async((scheduled_repark.id,), link=tasks.match_valet_with_repark.s(scheduled_repark.id))
-			tasks.match_valet_with_repark.apply_async(scheduled_repark.id, countdown=60)
+				# tasks.query_valets.apply_async((scheduled_repark.id,), link=tasks.match_valet_with_repark.s(scheduled_repark.id))
+				tasks.match_valet_with_repark.apply_async(scheduled_repark.id, countdown=60)
 
-		data = serializer.data
-		print(data)
+			data = serializer.data
+			print(data)
 
-		return Response(data, template_name='maps/user/index.html')
+			return Response(data, template_name='maps/user/index.html')
 
 
 @api_view(['GET',])

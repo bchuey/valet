@@ -146,6 +146,66 @@ PARKING_ZONES = (
     ('Z','Z'),
 )
 
+STATE_CHOICES = (
+
+    ('AL', 'AL'),
+    ('AK', 'AK'),
+    ('AZ', 'AZ'),
+    ('CA', 'CA'),
+    ('CO', 'CO'),
+    ('CT', 'CT'),
+    ('DC', 'DC'),
+    ('DE', 'DE'),
+    ('FL', 'FL'),
+    ('GA', 'GA'),
+    ('HI', 'HI'),
+    ('ID', 'ID'),
+    ('IL', 'IL'),
+    ('IN', 'IN'),
+    ('IA', 'IA'),
+    ('KS', 'KS'),
+    ('KY', 'KY'),
+    ('LA', 'LA'),
+    ('ME', 'ME'),
+    ('MD', 'MD'),
+    ('MA', 'MA'),
+    ('MI', 'MI'),
+    ('MN', 'MN'),
+    ('MS', 'MS'),
+    ('MO', 'MO'),
+    ('MT', 'MT'),
+    ('NE', 'NE'),
+    ('NV', 'NV'),
+    ('NH', 'NH'),
+    ('NJ', 'NJ'),
+    ('NM', 'NM'),
+    ('NY', 'NY'),
+    ('NC', 'NC'),
+    ('ND', 'ND'),
+    ('OH', 'OH'),
+    ('OK', 'OK'),
+    ('OR', 'OR'),
+    ('PA', 'PA'),
+    ('RI', 'RI'),
+    ('SC', 'SC'),
+    ('SD', 'SD'),
+    ('TN', 'TN'),
+    ('TX', 'TX'),
+    ('UT', 'UT'),
+    ('VT', 'VT'),
+    ('VA', 'VA'),
+    ('WA', 'WA'),
+    ('WV', 'WV'),
+    ('WI', 'WI'),
+    ('WY', 'WY'),
+)
+
+
+def vehicle_upload_to(instance, filename):
+
+    url = 'accounts/vehicles/{plate_number}/{filename}'.format(plate_number=instance.license_plate_number,filename=filename)
+
+    return url
 
 class RegisteredVehicle(models.Model):
     owned_by = models.ForeignKey(User, related_name='registered_vehicle')
@@ -156,6 +216,7 @@ class RegisteredVehicle(models.Model):
     license_plate_number = models.CharField(max_length=10)
     updated_registration_tags = models.BooleanField(default=True)
     parking_permit_zone = models.CharField(max_length=2, choices=PARKING_ZONES, blank=True)
+    vehicle_pic = models.ImageField(upload_to=vehicle_upload_to, blank=True)
 
     class Meta:
 
@@ -177,7 +238,7 @@ class DriversLicense(models.Model):
     date_of_birth = models.DateField()
     license_id_number = models.CharField(max_length=60)
     registered_city = models.CharField(max_length=100)
-    registered_state = models.CharField(max_length=25)
+    registered_state = models.CharField(max_length=2, choices=STATE_CHOICES)
 
     class Meta:
 

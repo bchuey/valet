@@ -94,13 +94,15 @@ class RegisteredVehicleView(LoginRequiredMixin, View):
 			vehicle = RegisteredVehicle.objects.get(owned_by=user)
 			form = self.form(instance=vehicle)
 			print("executed try statement")
+			context = {
+				'form': form,
+				'vehicle':vehicle,
+			}
 		except:
 			form = self.form
-
-
-		context = {
-			'form': form,
-		}
+			context = {
+				'form': form,
+			}
 
 		return render(request, self.template, context)
 

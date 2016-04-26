@@ -7,6 +7,9 @@
 			<form action="{% url 'accounts:vehicle' %}" method="POST" class="">
 				{% csrf_token %}
 				{{ form.as_p }}
+				{% if vehicle %}
+				<img src="{{ vehicle.vehicle_pic.url }}" alt="" />
+				{% endif %}
 				<input type="submit" class="btn btn-primary btn-md" value="Save">
 			</form>
 		</div>
