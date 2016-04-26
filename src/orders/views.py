@@ -540,7 +540,7 @@ def update_current_position(request):
 	current_position.lng = request.POST['lng']
 	current_position.save()
 
-	print "current position of valet: "
+	print "current position: "
 	print current_position.lat
 	print current_position.lng
 	print "================="
@@ -551,11 +551,11 @@ def update_current_position(request):
 	msg = "Updated current position"
 
 	if user.is_valet:
-		print 'updated user position'
+		print 'updated valet position'
 		return Response(msg, template_name='maps/valet/index.html')
 
 	else:
-		print 'updated valet position'
+		print 'updated customer position'
 		return Response(msg, template_name='maps/user/index.html')
 
 
