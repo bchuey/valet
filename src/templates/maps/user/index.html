@@ -720,6 +720,8 @@
       $("#floating-button").show();
 
     });
+
+    
   {% endblock window_load_js %}
 
 
@@ -760,9 +762,9 @@
 <div id="scheduledReparkPanel" class="modal" >
   <div class="modal-content">
     <label for="start_date">Date of Repark</label>
-    <input type='date' class='datepicker' id='start_date' placeholder='YYYY-MM-DD'/>
+    <input type='date' class='datepicker' id='start_date'/>
     <label for="end_date">Last Day of Reparking</label>
-    <input type='date' class='datepicker' id='end_date' placeholder='YYYY-MM-DD' />
+    <input type='date' class='datepicker' id='end_date' />
     <label for="parking_hour_limit">Time Limit</label>
     <input type='number' class='input-field' id='parking_hour_limit' placeholder='Enter # of hours' />
   </div>

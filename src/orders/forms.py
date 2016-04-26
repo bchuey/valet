@@ -4,14 +4,25 @@ from orders.models import Repark, Dropoff, ScheduledRepark
 
 import datetime
 
-today = datetime.date.today().strftime('%Y-%m-%d')
+# today = datetime.date.today().strftime('%Y-%m-%d')
+today = datetime.date.today()
 
 
 class OrderForm(forms.Form):
 
 	class  Meta:
 
-		fields = ('address','lat','lng','is_repark','is_dropoff','scheduled_start_date','scheduled_end_date','time_limit','is_scheduled_repark')
+		fields = (
+			'address',
+			'lat',
+			'lng',
+			'is_repark',
+			'is_dropoff',
+			'scheduled_start_date',
+			'scheduled_end_date',
+			'time_limit',
+			'is_scheduled_repark'
+		)
 
 
 	def clean_address(self):

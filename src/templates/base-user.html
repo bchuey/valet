@@ -40,6 +40,18 @@
 			$('select').material_select();
 			// the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
 		    $('.modal-trigger').leanModal();
+		    
+		    var today = new Date();
+		    var $input_start_date = $('#start_date').pickadate();
+			// Use the picker object directly.
+			var start_picker = $input_start_date.pickadate('picker');
+			// Using a string along with the parsing format (defaults to `format` option).
+			start_picker.set('select', today, { format: 'yyyy-mm-dd' });
+			var $input_end_date = $('#end_date').pickadate();
+			// Use the picker object directly.
+			var end_picker = $input_end_date.pickadate('picker');
+			// Using a string along with the parsing format (defaults to `format` option).
+			end_picker.set('select', today, { format: 'yyyy-mm-dd' });
 			
 		});
 		$(window).load(function(){
