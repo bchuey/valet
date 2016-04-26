@@ -26,11 +26,16 @@ class Register(View):
 
 	def post(self, request, *args, **kwargs):
 
-		form = self.form(request.POST)
+		form = self.form(request.POST, request.FILES)
 
 		context = {
 			'form': form,
 		}
+
+		print "-----------"
+		print "new user register:"
+		print request.POST
+		print "------------"
 
 		if form.is_valid():
 
@@ -43,6 +48,7 @@ class Register(View):
 
 			user = User.objects.create_user(email,date_of_birth,first_name,last_name,password)
 			user.is_valet = request.POST.get('is_valet', False)
+			user.profile_pic = request.FILES['profile_pic']
 			user.save()
 			print "User registered"
 
@@ -89,6 +95,9 @@ class Login(View):
 	def post(self, request, *args, **kwargs):
 
 		form = self.form(request.POST)
+		context = {
+			'form': form,
+		}
 		if request.method == "POST":
 			
 			email = request.POST['email']

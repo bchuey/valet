@@ -22,29 +22,35 @@ html, body {
   padding-left: 10px;
 }
 
-#floating-button {
+/*#scheduledReparkPanel {
   position: absolute;
-  top: 10px;
-  left: 25%;
-  z-index: 5;
-  /*background-color: #fff;*/
+  top: 40%;
+  left: 50%;
+  margin-left: -180px;
+  width: 350px;
+  z-index: 8;
+  background-color: #fff;
   padding: 5px;
-  /*border: 1px solid #999;*/
+  border: 1px solid #999;
   text-align: center;
   font-family: 'Roboto','sans-serif';
   line-height: 30px;
   padding-left: 10px;
-}
+}*/
+
 #floating-button {
   position: absolute;
-  top: 50%;
+  top: 38%;
   left: 50%;
   margin-left: -180px;
   width: 350px;
   z-index: 5;
+  text-align:center;
   /*background-color: #fff;*/
   padding: 5px;
   /*border: 1px solid #999;*/
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
 }
 #floating-button2 {
   position: absolute;
@@ -88,7 +94,13 @@ html, body {
   line-height: 30px;
   display: none;
 }
-#requestRepark {
+#floatingButtons {
+  position: absolute;
+  z-index: 5;
+  bottom: 0;
+  width: 100% !important;
+}
+/*#requestRepark {
   position: absolute;
   z-index: 5;
   bottom: 0;
@@ -99,6 +111,12 @@ html, body {
   bottom: 0;
   right: 0;
 }
+#requestScheduledRepark {
+  position: absolute;
+  z-index: 5;
+  bottom: 0;
+  left: 33.3333%;
+}*/
 #mainNavbar {
   position: absolute;
   top: 0;
@@ -118,3 +136,28 @@ html, body {
 #sidenav-overlay {
   z-index: 0;
 }
+
+.modal .modal-footer {
+
+  border-radius: 0px;
+  background-color: none;
+  padding: 4px 6px;
+  height: 56px;
+  width: 100%;
+
+}
+
+.modal-footer {
+
+  padding: 15px;
+  text-align: right;
+  border-top: none;
+
+}
+  
+
+
+
+
+
+

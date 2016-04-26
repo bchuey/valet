@@ -1,6 +1,6 @@
 {% extends 'base-valet.html' %}
 {% block jsblock %}
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5rDIK5VhVda2tXaw-h28AvAObJhVeVfY&libraries=places"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8&libraries=places"></script>
 
   {% load staticfiles %}
   <script type="text/javascript" src="{% static 'js/csrf_exempt.js' %}"></script>
@@ -11,13 +11,30 @@
 
 {% block jquery %}
 
-
+  var apiKey = 'AIzaSyC5rDIK5VhVda2tXaw-h28AvAObJhVeVfY';
   var socket;
   var map;
   var marker;
   var marker_locations = [];
   var directionsService;
   var directionsDisplay;
+  var placeIdArray = [];
+  var polylines = [];
+  var snappedCoordinates = [];
+  var watchID;
+  var geoLoc;
+  var current_latitude;
+  var current_longitude;
+  var current_request = false;
+
+
+
+  function connectSocket(){
+    // var socket;
+    socket = io.connect('http://127.0.0.1:3000/valets');
+    console.log('ran connectSocket');
+    
+  }
 
   function geocodeLatLng(geocoder, lat, lng) {
 
@@ -26,11 +43,8 @@
         if (status === google.maps.GeocoderStatus.OK) {
           if (results[0]) {
 
-            //console.log(results[0].formatted_address);
-            //var address = results[0].formatted_address;
-            //console.log(address);
-            //document.getElementById('id_address').value = address;
-            //return address;
+            var address = results[0].formatted_address;
+            document.getElementById('id_reparked_address').value = address;
 
           } else {
             window.alert('No results found');
@@ -41,78 +55,116 @@
       });
   }
 
-  function updateCurrentLocation(){
-      // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
+  function showLocation(position) {
+      current_latitude = position.coords.latitude;
+      current_longitude = position.coords.longitude;
+
+     console.log(current_latitude, current_longitude);
+
+      document.getElementById('id_lat').value = current_latitude;
+      document.getElementById('id_lng').value = current_longitude;
+      document.getElementById('id_reparked_lat').value = current_latitude;
+      document.getElementById('id_reparked_lng').value = current_longitude;
+
+      if(current_request === true){
+         // send new location to server.js if there is a current request
+        socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
+        console.log("there is a request");
+      } else {
+        console.log("there is no request");
+      }
+     
+
+      var geocoder = new google.maps.Geocoder;
+      geocodeLatLng(geocoder, current_latitude, current_longitude);
+
+      var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
+
+      if(marker){
+
+        marker.setPosition(markerLatLng);
+
+      } else {
+
+        marker = new google.maps.Marker({
+          position: markerLatLng,
+          map: map,
+          animation: google.maps.Animation.DROP,
+        });
+
+      }
+
+      var valet_new_position = {
+        lat: current_latitude,
+        lng: current_longitude,
+      }
+
+      var url = "send-current-location/";
+
+      $.ajax({
+
+        type: "POST",
+        url: url,
+        data: valet_new_position,
+        success: function(data){
+          console.log('valet position updated');
+        },
 
 
-            document.getElementById('id_lat').value = pos.lat;
-            document.getElementById('id_lng').value = pos.lng;
+      });
+      return false;
 
-            console.log("new lat position: " + pos.lat);
-            console.log("new lng position: " + pos.lng);
-
-            
-            // draw map
-            // set center to the currentPosition lat, lng
-            map = new google.maps.Map(document.getElementById('map'), {
-              center: {lat: pos.lat, lng: pos.lng},
-              zoom: 15,
-            });
-
-
-          marker_locations.push(pos);
-          for(var i = 0; i < marker_locations.length; i++)
-          {
-              marker = new google.maps.Marker({
-                position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
-                map: map,
-                animation: google.maps.Animation.DROP,
-              });
-          }
-
-
-        var geocoder = new google.maps.Geocoder;
-        geocodeLatLng(geocoder, pos.lat, pos.lng);
-        //console.log(result);
-
-        
-
-        }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
-          });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, infoWindow, map.getCenter());
-        }
-
-      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-                            'Error: The Geolocation service failed.' :
-                            'Error: Your browser doesn\'t support geolocation.');
+  }
+   
+  function errorHandler(err) {
+      if(err.code == 1) {
+         alert("Error: Access is denied!");
+      }
+      
+      else if( err.code == 2) {
+         alert("Error: Position is unavailable!");
       }
   }
 
-  function getCurrentLocation() {
+  // clear the watch that was started earlier
+  function clearWatch() {
+      if (watchID != null) {
+          navigator.geolocation.clearWatch(watchID);
+          watchID = null;
+      }
+  }
+ 
+  function getLocationUpdate(){
+      if(navigator.geolocation){
+         // Update every 1 ms seconds
+         var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
+         geoLoc = navigator.geolocation;
+         watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+      }
+      
+      else{
+         alert("Sorry, browser does not support geolocation!");
+      }
+  }
+
+
+  function initializeMap() 
+  {
       // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
+        if (navigator.geolocation) 
+        {
+          navigator.geolocation.getCurrentPosition(function(position) 
+          {
             var pos = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
             };
 
-            document.getElementById('id_lat').value = pos.lat;
-            document.getElementById('id_lng').value = pos.lng;
+            //document.getElementById('id_lat').value = pos.lat;
+            //document.getElementById('id_lng').value = pos.lng;
 
-            console.log(pos.lat);
-            console.log(pos.lng);
+            //console.log(pos.lat);
+            //console.log(pos.lng);
 
             
             // draw map
@@ -132,19 +184,8 @@
               },
             });
 
-
-            marker_locations.push(pos);
-            for(var i = 0; i < marker_locations.length; i++)
-            {
-                marker = new google.maps.Marker({
-                  position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
-                  map: map,
-                  animation: google.maps.Animation.DROP,
-                });
-            }
-
-        var geocoder = new google.maps.Geocoder;
-        geocodeLatLng(geocoder, pos.lat, pos.lng);
+            var geocoder = new google.maps.Geocoder;
+            geocodeLatLng(geocoder, pos.lat, pos.lng);
 
           }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -162,13 +203,6 @@
       }
   }
 
-  function connectSocket(){
-    // var socket;
-    socket = io.connect('http://127.0.0.1:3000/valets');
-    console.log('ran connectSocket');
-    
-  }
-
   function requestAccepted(){
 
     var url = "request/accept/"; // the script where you handle the form input.
@@ -181,63 +215,21 @@
        {
            console.log("successfully retrieved repark obj");
            console.log(data);
-           
+           current_request = true;
            $("#floating-request-screen").hide();
            socket.emit('join-room', data);
+
 
        }
      });
 
-    var watchID;
-    var geoLoc;
-
-    function showLocation(position) {
-        var latitude = position.coords.latitude;
-        var longitude = position.coords.longitude;
-        //alert("Latitude : " + latitude + " Longitude: " + longitude);
-
-        // send new location to server.js
-        socket.emit('get-new-location', {lat:latitude,lng:longitude});
-    }
-     
-    function errorHandler(err) {
-        if(err.code == 1) {
-           alert("Error: Access is denied!");
-        }
-        
-        else if( err.code == 2) {
-           alert("Error: Position is unavailable!");
-        }
-    }
-
-     // clear the watch that was started earlier
-    function clearWatch() {
-        if (watchID != null) {
-            navigator.geolocation.clearWatch(watchID);
-            watchID = null;
-        }
-    }
-   
-    function getLocationUpdate(){
-        if(navigator.geolocation){
-           // Update every 1 ms seconds
-           var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
-           geoLoc = navigator.geolocation;
-           watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
-        }
-        
-        else{
-           alert("Sorry, browser does not support geolocation!");
-        }
-    }
-
-    getLocationUpdate();
+     // new location update should happen every time showLocation succeeds
+     //socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
 
   }
 
   function arrived(){
 
-    // need to update 'picked_up_at' field
     var url = "request/arrived/";
 
     $.ajax({
@@ -266,8 +258,12 @@
       data: null,
       success: function(data)
       {
+
+
+        var output = JSON.parse(data);
+
         socket.emit("valet-enroute");
-        if(data.is_repark)
+        if(output.order.is_repark)
         {
           $("#actionButton").text("Reparked");
           $("#actionButton").attr("onClick", "reparked()");
@@ -276,6 +272,18 @@
           $("#actionButton").text("Dropped Off");
           $("#actionButton").attr("onClick", "dropoff()");
         }
+
+        var limitedParkingCoordinates = output.coordinates;
+
+        var sectionBoundary = new google.maps.Polyline({
+          path: limitedParkingCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+
+        sectionBoundary.setMap(map);
         
       }
     });
@@ -285,88 +293,37 @@
 
   function reparked(){
     
-    // grabs the new position, but takes time to load...
-    function geocodeLatLng(geocoder, lat, lng) {
+    // run ajax post request
+    var url = "request/reparked/"; // the script where you handle the form input.
 
-      var latlng = {lat: parseFloat(lat), lng: parseFloat(lng)};
-      geocoder.geocode({'location': latlng}, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results[0]) {
+    $.ajax({
+       type: "POST",
+       url: url,
+       data: $("#updateLocationForm").serialize(), // serializes the form's elements.
+       success: function(data)
+       {
+          // alert user
+          socket.emit("vehicle-reparked", data);
 
-            var address = results[0].formatted_address;
-            console.log("full address: " + address);
-            document.getElementById('id_reparked_address').value = address;
+          console.log("success response when vehicle is reparked");
+          console.log(data);
 
-            // run ajax post request
-            var url = "request/reparked/"; // the script where you handle the form input.
-
-            $.ajax({
-               type: "POST",
-               url: url,
-               data: $("#updateLocationForm").serialize(), // serializes the form's elements.
-               success: function(data)
-               {
-                  // alert user
-                  socket.emit("vehicle-reparked", data);
-
-                  console.log("success response when vehicle is reparked");
-                  console.log(data);
-
-                  // reset map and directions
-                  directionsDisplay.setMap(null);
+          // reset map and directions
+          directionsDisplay.setMap(null);
 
 
-                  // run a getCurrentLocation() or rerun watchPosition() ??
+          // run a getCurrentLocation() or rerun watchPosition() ??
 
 
 
-                  // show new button
-                  $("#actionButton").text("Return");
-                  $("#actionButton").attr("onClick", "returnHome()");
+          // show new button
+          $("#actionButton").text("Return");
+          $("#actionButton").attr("onClick", "returnHome()");
 
-               },
-               
-             });
-            } else {
-              window.alert('No results found');
-            }
-          } else {
-            window.alert('Geocoder failed due to: ' + status);
-          }
-        });
-        return false;
-      }
-      // Try HTML5 geolocation.
-      if (navigator.geolocation) 
-      {
-        navigator.geolocation.getCurrentPosition(function(position) 
-        {
-          console.log("position alert alert alert");
-          var pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-
-          document.getElementById('id_reparked_lat').value = pos.lat;
-          document.getElementById('id_reparked_lng').value = pos.lng;
-
-          console.log(pos.lat);
-          console.log(pos.lng);
-
-          var geocoder = new google.maps.Geocoder;
-          geocodeLatLng(geocoder, pos.lat, pos.lng);
-
-          
-        }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
-          });
-      } else {
-        // Browser doesn't support Geolocation
-        handleLocationError(false, infoWindow, map.getCenter());
-      }
-
-    
-
+       },
+       
+     });
+     current_request = false;
 
   }
 
@@ -524,6 +481,7 @@
       {
         // do something
         socket.emit("request-completed");
+        clearWatch();
         window.location.href = '/valet/';
       }
 
@@ -537,7 +495,8 @@
 
     $(".button-collapse").sideNav();
     connectSocket();
-    getCurrentLocation();
+    initializeMap();
+    getLocationUpdate();
 
     socket.on('incoming-request', function(data){
 
@@ -566,6 +525,13 @@
 
     });
 
+    socket.on('incoming-scheduled-request', function(data){
+
+      // display some type of flash message (closable)
+      Materialize.toast('Customer has scheduled a repark.', 3000, 'rounded');
+
+    });
+
     socket.on("valet-assigned-to-request", function(){
       $("#floating-request-screen").hide();
       $("#actionButton").hide();
@@ -582,8 +548,8 @@
       if(data.is_repark)
       {
         origin_latlng = {
-          lat: parseFloat(data.valet_start_pos.lat),
-          lng: parseFloat(data.valet_start_pos.lng),
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
 
         }
 
@@ -591,12 +557,12 @@
           lat: parseFloat(data.pickup_location.lat),
           lng: parseFloat(data.pickup_location.lng),
         }
-      } else {
+      } else if(data.is_dropoff) {
 
         // valet current position
         origin_latlng = {
-          lat: parseFloat(data.valet_start_pos.lat),
-          lng: parseFloat(data.valet_start_pos.lng),
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
 
         }
 
@@ -608,6 +574,20 @@
 
         // need to add one more point for the user's current position
         // this location is equivalent to dropoff.dropoff_location
+
+      } else {
+
+        origin_latlng = {
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
+
+        }
+
+        destination_latlng = {
+          lat: parseFloat(data.pickup_location.lat),
+          lng: parseFloat(data.pickup_location.lng),
+        }
+
 
       }
 
@@ -635,8 +615,15 @@
             console.log(response);
             // if success:
             // change button
-            $("#actionButton").text("Arrived");
-            $("#actionButton").attr("onClick", "arrived()");
+            if(data.is_scheduled_repark){
+              $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large actionBtn light-blue darken-1' onClick='arrived()'>Arrived</button></div>");
+            } else {
+
+              $("#actionButton").text("Arrived");
+              $("#actionButton").attr("onClick", "arrived()");
+
+            }
+            
 
           } else {
             window.alert('Directions request failed due to ' + status);
@@ -651,6 +638,40 @@
 
     });
   
+    socket.on("check-matching-valet", function(data){
+
+      console.log("this is the data from socket.emit(): ");
+      //console.log(data);
+
+      var output = JSON.parse(data);
+      //console.log(output);
+
+      var valet = "{{ request.user }}";
+
+      if(output.reparked_by.email === valet)
+      {
+
+        // run ajax.POST request
+        $("#scheduled_repark_id").val(output.id);
+        var url = 'request/accept/';
+        $.ajax({
+          type:"POST",
+          url: url,
+          data: $("#reparkRequestForm").serialize(),
+          success: function(data)
+          {
+
+            current_request = true;
+            socket.emit("valet-join-room", data);
+          }
+
+        });
+        return false;
+
+      }
+
+    });
+
 
 
 {% endblock on_ready_js %}
@@ -667,6 +688,7 @@
   <input type="hidden" class="" id="valet_id" name="valet_id" value="{{ request.user.id }}"/>
   <input type="hidden" class="" id="repark_id" name="repark_id" />
   <input type="hidden" class="" id="dropoff_id" name="dropoff_id" />
+  <input type="hidden" class="" id="scheduled_repark_id" name="scheduled_repark_id" />
   <input type="hidden" id="id_lat"  name="lat" />
   <input type="hidden" id="id_lng"  name="lng" />
 </form>

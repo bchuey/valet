@@ -1,0 +1,366 @@
+{% extends 'base-valet.html' %}
+{% block jsblock %}
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8&libraries=places"></script>
+
+  {% load staticfiles %}
+  <script type="text/javascript" src="{% static 'js/csrf_exempt.js' %}"></script>
+
+  <script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
+{% endblock %}
+
+
+{% block jquery %}
+
+  var apiKey = 'AIzaSyC5rDIK5VhVda2tXaw-h28AvAObJhVeVfY';
+  var socket;
+  var map;
+  var marker;
+  var marker_locations = [];
+  var directionsService;
+  var directionsDisplay;
+  var placeIdArray = [];
+  var polylines = [];
+  var snappedCoordinates = [];
+  var watchID;
+  var geoLoc;
+  var current_latitude;
+  var current_longitude;
+  var current_request = false;
+
+
+  function geocodeLatLng(geocoder, lat, lng) {
+
+      var latlng = {lat: parseFloat(lat), lng: parseFloat(lng)};
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          if (results[0]) {
+
+            var address = results[0].formatted_address;
+            document.getElementById('id_reparked_address').value = address;
+
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+      });
+  }
+
+  function showLocation(position) {
+      current_latitude = position.coords.latitude;
+      current_longitude = position.coords.longitude;
+
+     console.log(current_latitude, current_longitude);
+
+      document.getElementById('id_lat').value = current_latitude;
+      document.getElementById('id_lng').value = current_longitude;
+      document.getElementById('id_reparked_lat').value = current_latitude;
+      document.getElementById('id_reparked_lng').value = current_longitude;
+
+      if(current_request === true){
+         // send new location to server.js if there is a current request
+        socket.emit('get-new-location', {lat:current_latitude,lng:current_longitude});
+        console.log("there is a request");
+      } else {
+        console.log("there is no request");
+      }
+     
+
+      var geocoder = new google.maps.Geocoder;
+      geocodeLatLng(geocoder, current_latitude, current_longitude);
+
+      var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
+
+      if(marker){
+
+        marker.setPosition(markerLatLng);
+
+      } else {
+
+        marker = new google.maps.Marker({
+          position: markerLatLng,
+          map: map,
+          animation: google.maps.Animation.DROP,
+        });
+
+      }
+
+      var valet_new_position = {
+        lat: current_latitude,
+        lng: current_longitude,
+      }
+
+      var url = "send-current-location/";
+
+      $.ajax({
+
+        type: "POST",
+        url: url,
+        data: valet_new_position,
+        success: function(data){
+          console.log('valet position updated');
+        },
+
+
+      });
+      return false;
+
+  }
+   
+  function errorHandler(err) {
+      if(err.code == 1) {
+         alert("Error: Access is denied!");
+      }
+      
+      else if( err.code == 2) {
+         alert("Error: Position is unavailable!");
+      }
+  }
+
+  // clear the watch that was started earlier
+  function clearWatch() {
+      if (watchID != null) {
+          navigator.geolocation.clearWatch(watchID);
+          watchID = null;
+      }
+  }
+ 
+  function getLocationUpdate(){
+      if(navigator.geolocation){
+         // Update every 1 ms seconds
+         var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
+         geoLoc = navigator.geolocation;
+         watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+      }
+      
+      else{
+         alert("Sorry, browser does not support geolocation!");
+      }
+  }
+
+
+
+  
+  
+  {% endblock jquery %}
+ {% block on_ready_js %}
+
+    $(".button-collapse").sideNav();
+    connectSocket();
+    initializeMap();
+    getLocationUpdate();
+
+    socket.on('incoming-request', function(data){
+
+      console.log("incoming request");
+
+      console.log(data);
+
+      if(data.is_repark)
+      {
+        document.getElementById('repark_id').value = data.id;
+      } else {
+        document.getElementById('dropoff_id').value = data.id;
+      }
+      
+
+      $("#request-screen").append("<div id='floating-request-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Incoming Request</h3><h4>You have 30 seconds to accept.</h4></div></div>");
+
+      $("#floating-request-screen").fadeIn(2000, function() {
+        $("h3").fadeIn(1200);
+        $("h4").fadeIn(1200);
+      });
+
+      $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large actionBtn light-blue darken-1' onClick='requestAccepted()'>Accept Request</button></div>");
+      // use data to display on html screen
+
+
+    });
+
+    socket.on('incoming-scheduled-request', function(data){
+
+      // display some type of flash message (closable)
+      Materialize.toast('Customer has scheduled a repark.', 3000, 'rounded');
+
+    });
+
+    socket.on("valet-assigned-to-request", function(){
+      $("#floating-request-screen").hide();
+      $("#actionButton").hide();
+    });
+
+    socket.on("activate-directions-service", function(data){
+
+      console.log(data);
+      console.log('activate directions service');
+
+      var origin_latlng;
+      var destination_latlng;
+
+      if(data.is_repark)
+      {
+        origin_latlng = {
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
+
+        }
+
+        destination_latlng = {
+          lat: parseFloat(data.pickup_location.lat),
+          lng: parseFloat(data.pickup_location.lng),
+        }
+      } else if(data.is_dropoff) {
+
+        // valet current position
+        origin_latlng = {
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
+
+        }
+
+        // 'dropoff_location' of user's last repark request
+        destination_latlng = {
+          lat: parseFloat(data.pickup_location.lat),
+          lng: parseFloat(data.pickup_location.lng),
+        }
+
+        // need to add one more point for the user's current position
+        // this location is equivalent to dropoff.dropoff_location
+
+      } else {
+
+        origin_latlng = {
+          lat: parseFloat(current_latitude),
+          lng: parseFloat(current_longitude),
+
+        }
+
+        destination_latlng = {
+          lat: parseFloat(data.pickup_location.lat),
+          lng: parseFloat(data.pickup_location.lng),
+        }
+
+
+      }
+
+      
+
+      directionsDisplay = new google.maps.DirectionsRenderer;
+      directionsService = new google.maps.DirectionsService;
+
+      directionsDisplay.setMap(map);
+      directionsDisplay.setPanel(document.getElementById('right-panel'));
+
+
+      var onChangeHandler = function() {
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
+      };
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay,origin_latlng,destination_latlng){
+        directionsService.route({
+          origin: origin_latlng,
+          destination: destination_latlng,
+          travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status){
+          if(status === google.maps.DirectionsStatus.OK){
+            directionsDisplay.setDirections(response);
+            console.log(response);
+            // if success:
+            // change button
+            if(data.is_scheduled_repark){
+              $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large actionBtn light-blue darken-1' onClick='arrived()'>Arrived</button></div>");
+            } else {
+
+              $("#actionButton").text("Arrived");
+              $("#actionButton").attr("onClick", "arrived()");
+
+            }
+            
+
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      };
+      marker.setMap(null);
+      marker_locations = [];
+      calculateAndDisplayRoute(directionsService, directionsDisplay,origin_latlng,destination_latlng);
+
+
+
+    });
+  
+    socket.on("check-matching-valet", function(data){
+
+      console.log("this is the data from socket.emit(): ");
+      //console.log(data);
+
+      var output = JSON.parse(data);
+      //console.log(output);
+
+      var valet = "{{ request.user }}";
+
+      if(output.reparked_by.email === valet)
+      {
+
+        // run ajax.POST request
+        $("#scheduled_repark_id").val(output.id);
+        var url = 'request/accept/';
+        $.ajax({
+          type:"POST",
+          url: url,
+          data: $("#reparkRequestForm").serialize(),
+          success: function(data)
+          {
+
+            current_request = true;
+            socket.emit("valet-join-room", data);
+          }
+
+        });
+        return false;
+
+      }
+
+    });
+
+
+
+{% endblock on_ready_js %}
+
+
+{% block styles %}
+{% endblock styles %}
+
+{% block content %}
+
+
+<form action="{% url 'accept-request' %}" method="POST" id="reparkRequestForm">
+  {% csrf_token %}
+  <input type="hidden" class="" id="valet_id" name="valet_id" value="{{ request.user.id }}"/>
+  <input type="hidden" class="" id="repark_id" name="repark_id" />
+  <input type="hidden" class="" id="dropoff_id" name="dropoff_id" />
+  <input type="hidden" class="" id="scheduled_repark_id" name="scheduled_repark_id" />
+  <input type="hidden" id="id_lat"  name="lat" />
+  <input type="hidden" id="id_lng"  name="lng" />
+</form>
+
+<form action="{% url 'reparked' %}" method="POST" id="updateLocationForm">
+  {% csrf_token %}
+  <input type="hidden" class="" id="valet_id" name="valet_id" value="{{ request.user.id }}"/>
+  <input type="hidden" id="id_reparked_address" class="" name="address"/>
+  <input type="hidden" id="id_reparked_lat" name="lat" />
+  <input type="hidden" id="id_reparked_lng" name="lng" />
+</form>
+
+<div id="request-screen">
+
+</div>
+  
+<div id="map"></div>
+
+
+
+
+{% endblock content %}

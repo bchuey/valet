@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 import environ
+import djcelery
 
 env = environ.Env()
 
+djcelery.setup_loader()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,6 +51,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
 
     'rest_framework',
+    'djcelery',
+    'kombu.transport.django',
 
 ]
 
@@ -58,6 +62,7 @@ MY_APPS = [
     'authentication',
     'locations',
     'orders',
+    'payments',
 
 ]
 
@@ -157,10 +162,34 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "static_root")
 MEDIA_URL = '/media/'
 MEDIAFILES_DIRS = [
     os.path.join(os.path.dirname(BASE_DIR), "media"),
+    os.path.join(os.path.dirname(BASE_DIR), "accounts"),
 ]
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 # print MEDIA_ROOT
-
+# print os.path.join(os.path.dirname(BASE_DIR), "media")
+# /Users/bchuey/Documents/valet_project_final/media
+# /Users/bchuey/Documents/valet_project_final/media
 
 # Custom Auth User
 AUTH_USER_MODEL = 'accounts.User'
+
+# Default LOGIN_URL
+
+LOGIN_URL = '/login'
+
+
+### STRIPE ###
+
+STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY', default='sk_test_BQokikJOvBiI2HlWgH4olfQ2')
+STRIPE_TEST_PUBLISHABLE_KEY = env('STRIPE_TEST_PUBLISHABLE_KEY', default='pk_test_6pRNASCoBOKtIshFeQd4XMUh')
+
+### CELERY ###
+BROKER_URL = 'redis://127.0.0.1:6379/0' # using server 0
+BROKER_TRANSPORT = 'redis'  # broker=> where you store tasks in a queue
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+

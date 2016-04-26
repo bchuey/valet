@@ -45,7 +45,8 @@ class UserProfileView(LoginRequiredMixin, View):
 		form = self.form(request.POST)
 		if form.is_valid():
 
-			# update
+			form.save()
+			
 			return HttpResponseRedirect('%s'%(reverse('accounts:profile')))
 
 class ValetProfileView(LoginRequiredMixin, View):
@@ -93,13 +94,15 @@ class RegisteredVehicleView(LoginRequiredMixin, View):
 			vehicle = RegisteredVehicle.objects.get(owned_by=user)
 			form = self.form(instance=vehicle)
 			print("executed try statement")
+			context = {
+				'form': form,
+				'vehicle':vehicle,
+			}
 		except:
 			form = self.form
-
-
-		context = {
-			'form': form,
-		}
+			context = {
+				'form': form,
+			}
 
 		return render(request, self.template, context)
 
@@ -117,7 +120,9 @@ class RegisteredVehicleView(LoginRequiredMixin, View):
 			vehicle.model = form.cleaned_data.get('model')
 			vehicle.color = form.cleaned_data.get('color')
 			vehicle.license_plate_number = form.cleaned_data.get('license_plate_number')
+			vehicle.year = form.cleaned_data.get('year')
 			vehicle.updated_registration_tags = form.cleaned_data.get('updated_registration_tags')
+			vehicle.parking_permit_zone = form.cleaned_data.get('parking_permit_zone')
 			vehicle.save()
 
 			return HttpResponseRedirect('%s'%(reverse('accounts:vehicle')))

@@ -1,9 +1,9 @@
 {% extends 'base-user.html' %}
 
 {% block content %}
-<div class="row">
+<div class="row dashboard-wrapper">
 	<div class="container">
-		<div class="col-xs-12">
+		<div class="col s12">
 			<form action="{% url 'accounts:insurance' %}" method="POST" class="">
 				{% csrf_token %}
 				{{ form.as_p }}
