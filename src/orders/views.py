@@ -551,9 +551,11 @@ def update_current_position(request):
 	msg = "Updated current position"
 
 	if user.is_valet:
+		print 'updated user position'
 		return Response(msg, template_name='maps/valet/index.html')
 
 	else:
+		print 'updated valet position'
 		return Response(msg, template_name='maps/user/index.html')
 
 
