@@ -1,0 +1,20 @@
+
+
+		
+
+		<div id="myPanel" data-role="panel" class="ui-content">
+			<ul>
+				<li><img src="{{ user.profile_pic.url }}" class="circle responsive-img profile-pic-frame"></li>
+				<li><a href="{% url 'accounts:profile' %}">User Account</a></li>
+				<li><a href="{% url 'accounts:payment' %}">Payment</a></li>
+				<li><a href="">History</a></li>
+				<li><a href="{% url 'accounts:vehicle' %}">Registered Vehicle</a></li>
+				<li><a href="{% url 'accounts:license' %}">Drivers License</a></li>
+				<li><a href="{% url 'accounts:insurance' %}">Insurance Policy</a></li>
+				<li><a href="#!">Notifications</a></li>
+				<li><a href="#!">Help</a></li>
+				<li><a href="#!">Settings</a></li>
+				<li><a href="{% url 'logout' %}">Logout</a></li>
+			</ul>
+		</div>
+
