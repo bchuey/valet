@@ -3,30 +3,25 @@
 <html >
 <head>
 	<title></title>
-	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	
-	<!-- Include jQuery Mobile stylesheets -->
-<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-
-<!-- Include the jQuery library -->
-<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-
-<!-- Include the jQuery Mobile library -->
-<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-
-	<link rel="stylesheet" type="text/css" href="{% static 'css/style-mobile.css' %}">
+	<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}"> -->
+	<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/user-style.css' %}">
 	{% block jsblock %}
 
 	
 		
 	{% endblock jsblock %}
+	
+	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
 	{% block stripe %}
 
 	{% endblock stripe %}
-	<!-- <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script> -->
-	<!-- <script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script> -->
 	<script type="text/javascript">
 		{% block jquery %}
 
@@ -76,14 +71,7 @@
 <body>
 
 	{% block navbar %}
-		<nav id="" class="ui-grid-solo">
-
-				<a href="#myPanel"><i id="top-menu-btn" class="fa fa-bars fa-2x"></i><a>
-				<a href="{% url 'user-map' %}"><i id="top-menu-btn" class="fa fa-globe fa-2x"></i></a>
-			    <a href="" onclick="return getLatestRequest();"><i id="top-menu-btn" class="fa fa-undo fa-2x"></i></a>
-
-		</nav>
-		{% include 'navbar-user-mobile.html' %}
+		{% include 'navbar-user.html' %}
 	{% endblock navbar %}
 
 	{% block content %}
