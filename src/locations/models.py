@@ -63,7 +63,9 @@ class ParkingSection(models.Model):
 
 		return self.label
 
-# class ParkingPermit(models.Model):
+"""
+Create model for street cleaning restrictions: parking zone + day + time combination
+"""
 
 
 

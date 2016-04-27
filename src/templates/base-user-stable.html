@@ -1,0 +1,82 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html >
+<head>
+	<title></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	
+	<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}"> -->
+	<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/user-style.css' %}">
+	{% block jsblock %}
+
+	
+		
+	{% endblock jsblock %}
+	
+	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+	{% block stripe %}
+
+	{% endblock stripe %}
+	<script type="text/javascript">
+		{% block jquery %}
+
+
+		{% endblock jquery %}
+		$(document).ready(function(){
+			
+			{% block on_ready_js %}
+
+			{% endblock on_ready_js %}
+			$(".button-collapse").sideNav();
+			$(".datepicker").pickadate({
+				selectMonths: true,
+				selectYears: 30,
+				format: 'yyyy-mm-dd'
+			});
+			$('select').material_select();
+			// the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+		    $('.modal-trigger').leanModal();
+		    
+		    var today = new Date();
+		    var $input_start_date = $('#start_date').pickadate();
+			// Use the picker object directly.
+			var start_picker = $input_start_date.pickadate('picker');
+			// Using a string along with the parsing format (defaults to `format` option).
+			start_picker.set('select', today, { format: 'yyyy-mm-dd' });
+			var $input_end_date = $('#end_date').pickadate();
+			// Use the picker object directly.
+			var end_picker = $input_end_date.pickadate('picker');
+			// Using a string along with the parsing format (defaults to `format` option).
+			end_picker.set('select', today, { format: 'yyyy-mm-dd' });
+			
+		});
+		$(window).load(function(){
+
+			{% block window_load_js %}
+
+			{% endblock window_load_js %}
+
+		});
+	</script>
+	<script type="text/javascript" src="{% static 'js/csrf_exempt.js' %}"></script>
+	{% block styles %}
+
+	{% endblock styles %}
+</head>
+<body>
+
+	{% block navbar %}
+		{% include 'navbar-user.html' %}
+	{% endblock navbar %}
+
+	{% block content %}
+
+	{% endblock content %}
+
+</body>
+</html>

@@ -328,9 +328,11 @@
 
            $("#floating-panel").hide();
 
-           $("#requestValet").removeClass("light-blue").addClass("red darken-3");
+          /* $("#requestValet").removeClass("light-blue").addClass("red darken-3");
            $("#requestValet").attr("onClick", "cancelRequest()");
-           $("#requestValet").text("Cancel Request");
+           $("#requestValet").text("Cancel Request"); */
+
+           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large requestReparkBtn red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
        }
      });
 
@@ -362,9 +364,11 @@
 
            $("#floating-panel").hide();
 
-           $("#requestValet").removeClass("light-blue").addClass("red darken-3");
+           /* $("#requestValet").removeClass("light-blue").addClass("red darken-3");
            $("#requestValet").attr("onClick", "cancelRequest()");
-           $("#requestValet").text("Cancel Request");
+           $("#requestValet").text("Cancel Request"); */
+
+           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large requestReparkBtn red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
        }
      });
 

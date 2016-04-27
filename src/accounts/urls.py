@@ -4,15 +4,20 @@ from django.conf.urls import include, url
 from payments.views import PaymentMethodView, update_payment_method
 
 from . import views
+from accounts.angularviews import UserProfileView, RegisteredVehicleView
 
 app_name = 'accounts'
 
 urlpatterns = [
 
 
-	url(r'^dashboard/profile/$', views.UserProfileView.as_view(), name='profile'),
-	# url(r'^dashboard/requests/$', views.UserRequestsListView.as_view(), name='user-requests'),
-	url(r'^dashboard/vehicle/$', views.RegisteredVehicleView.as_view(), name='vehicle'),
+	# url(r'^dashboard/profile/$', views.UserProfileView.as_view(), name='profile'),
+	url(r'^dashboard/profile/$', UserProfileView.as_view(), name='profile'),
+
+	# url(r'^dashboard/vehicle/$', views.RegisteredVehicleView.as_view(), name='vehicle'),
+	url(r'^dashboard/vehicle/$', RegisteredVehicleView.as_view(), name='vehicle'),
+
+
 	url(r'^dashboard/license/$', views.DriversLicenseView.as_view(), name='license'),
 	url(r'^dashboard/insurance-policy/$', views.InsurancePolicyView.as_view(), name='insurance'),
 	url(r'^dashboard/payment-method/$', PaymentMethodView.as_view(), name='payment'),

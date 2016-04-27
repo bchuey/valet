@@ -20,6 +20,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 
 from authentication.views import Register, Login, logout_user
+from authentication.angularviews import AngularLogin
+
 from orders.views import (
     customer_submits_valet_request, 
     valet_accepts_request, 
@@ -32,13 +34,15 @@ from orders.views import (
     update_current_position,
 )
 
+
 from . import views
 
 urlpatterns = [
 
     # authentication
 	url(r'^register/$', Register.as_view(), name='register'),
-    url(r'^login/$', Login.as_view(), name='login'),
+    # url(r'^login/$', Login.as_view(), name='login'),
+    url(r'^login/$', AngularLogin.as_view(), name='login'),
     url(r'^logout/$', logout_user, name='logout'),
 
     # respective homepages
