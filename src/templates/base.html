@@ -29,6 +29,10 @@
 	<script type="text/javascript" src="{% static 'client/accounts/controllers/profile.controller.js' %}"></script>
 	<script type="text/javascript" src="{% static 'client/accounts/services/vehicle.factory.js' %}"></script>
 	<script type="text/javascript" src="{% static 'client/accounts/controllers/vehicle.controller.js' %}"></script>
+	<script type="text/javascript" src="{% static 'client/accounts/services/license.factory.js' %}"></script>
+	<script type="text/javascript" src="{% static 'client/accounts/controllers/license.controller.js' %}"></script>
+	<script type="text/javascript" src="{% static 'client/accounts/services/policy.factory.js' %}"></script>
+	<script type="text/javascript" src="{% static 'client/accounts/controllers/policy.controller.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
 	{% block stripe %}
 
@@ -71,8 +75,10 @@
 <body>
 
 	<div ng-view>
+
 		
 	</div>
+
 
 </body>
 </html>

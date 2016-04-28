@@ -43,6 +43,16 @@ app.config(['$routeProvider',
 				controllerAs: 'vm',
 				templateUrl: '/static/client/accounts/templates/vehicle.html',
 			})
+			.when('/dashboard/license', {
+				controller: 'LicenseController',
+				controllerAs: 'vm',
+				templateUrl: '/static/client/accounts/templates/license.html',
+			})
+			.when('/dashboard/insurance', {
+				controller: 'InsurancePolicyController',
+				controllerAs: 'vm',
+				templateUrl: '/static/client/accounts/templates/insurance_policy.html',
+			})
 			.otherwise({
 				redirectTo: '/',
 			});

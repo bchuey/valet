@@ -7,37 +7,32 @@
 				<img src="" alt="" class="circle responsive-img profile-pic-frame" />
 			</div>
 			<div class='col s12'>
-				<form ng-submit="" method="POST" class="">
+				<form ng-submit="vm.updateProfile()" class="" role="form">
 					<div class="row">
 				        <div class="input-field col s12">
-				          <input id="email" type="email" class="validate" ng-model="vm.user.email">
+				          <input id="email" type="email" class="" name="email" ng-model="vm.user.email">
 				          <label for="email" class="active">Email</label>
 				        </div>
 					</div>
 					<div class="row">
 				        <div class="input-field col s12">
-				          <input id="first_name" type="text" class="validate" ng-model="vm.user.first_name">
+				          <input id="first_name" type="text" class="" name="first_name" ng-model="vm.user.first_name">
 				          <label for="first_name" class="active">First Name</label>
 				        </div>
 					</div>
 					<div class="row">
 				        <div class="input-field col s12">
-				          <input id="last_name" type="text" class="validate" ng-model="vm.user.last_name">
+				          <input id="last_name" type="text" class="" name="last_name" ng-model="vm.user.last_name">
 				          <label for="last_name" class="active">Last Name</label>
 				        </div>
 					</div>
 					<div class="row">
 				        <div class="input-field col s12">
-				          <input id="date_of_birth" type="date" class="validate datepicker" ng-model="vm.date_of_birth">
+				          <input id="date_of_birth" type="date" class="datepicker" name="date_of_birth" ng-model="vm.date_of_birth">
 				          <label for="date_of_birth" class="active">DOB</label>
 				        </div>
 					</div>
-					<div class="row">
-				        <div class="input-field col s12">
-				          <input id="password" type="password" class="validate" ng-model="vm.user.password">
-				          <label for="password" class="active">Password</label>
-				        </div>
-					</div>
+
 					<input type="submit" class="btn btn-primary btn-md" value="Update">
 				</form>
 			</div>

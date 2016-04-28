@@ -15,6 +15,8 @@ from authentication.forms import LoginForm
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from datetime import datetime
+
 # from ..orders.models import Repark
 
 STATIC_LOGIN_URL = '/login/'
@@ -40,12 +42,26 @@ class UserProfileView(LoginRequiredMixin, APIView):
 
 	def post(self, request, *args, **kwargs):
 
-		form = self.form(request.POST)
-		if form.is_valid():
+		data = request.data
 
-			form.save()
-			
-			return HttpResponseRedirect('%s'%(reverse('accounts:profile')))
+		unicode_dob = data['date_of_birth']
+		convert_dob = datetime.strptime(unicode_dob, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
+		dob = datetime.strptime(convert_dob, '%Y-%m-%d')
+		dob = dob.date()
+
+		user = request.user
+		user.email = data['email']
+		user.first_name = data['first_name']
+		user.last_name = data['last_name']
+		user.date_of_birth = dob
+
+		user.save()
+
+		serializer = UserSerializer(user)
+
+		data = serializer.data
+
+		return Response(data)
 
 class ValetProfileView(LoginRequiredMixin, View):
 
@@ -84,29 +100,22 @@ class RegisteredVehicleView(LoginRequiredMixin, APIView):
 	def get(self, request, *args, **kwargs):
 		
 		user = request.user
-		vehicle = RegisteredVehicle.objects.get(owned_by=user)
+		
+		
+		try:
 
-		serializer = RegisteredVehicleSerializer(vehicle)
+			vehicle = RegisteredVehicle.objects.get(owned_by=user)
 
-		data = serializer.data
+			serializer = RegisteredVehicleSerializer(vehicle)
+
+			data = serializer.data
+
+		except:
+
+			data = {"msg": "You did not register your vehicle."}
+
 
 		return Response(data)
-		
-		# try:
-
-		# 	vehicle = RegisteredVehicle.objects.get(owned_by=user)
-
-		# 	serializer = RegisteredVehicleSerializer(vehicle)
-
-		# 	data = serializer.data
-
-		# 	return Response(data)
-
-		# except:
-
-		# 	data = {"msg": "You did not register your vehicle."}
-
-		# 	return Response(data)
 
 	def post(self, request, *args, **kwargs):
 		form = self.form(request.POST)
@@ -132,29 +141,29 @@ class RegisteredVehicleView(LoginRequiredMixin, APIView):
 # ==================
 # Add DriversLicense
 # ==================
-class DriversLicenseView(LoginRequiredMixin, View):
+class DriversLicenseView(LoginRequiredMixin, APIView):
 	
-	login_url = STATIC_LOGIN_URL
-	model = DriversLicense
-	template = 'accounts/user/dashboard/license.html'
 	form = DriversLicenseForm
 
 	def get(self, request, *args, **kwargs):
 		
-		user = self.request.user
+		user = request.user
+
 
 		try:
 			drivers_license = DriversLicense.objects.get(owned_by=user)
-			form = self.form(instance=drivers_license)
+
+			serializer = DriversLicenseSerializer(drivers_license)
+
+			data = serializer.data
+
+
 		except:
-			form = self.form
 
-		context = {
-			'user': user,
-			'form': form,
-		}
+			data = {"msg": "No drivers license found."}
 
-		return render(request, self.template, context)
+
+		return Response(data)
 
 	def post(self, request, *args, **kwargs):
 		form = self.form(request.POST)
@@ -181,28 +190,29 @@ class DriversLicenseView(LoginRequiredMixin, View):
 # ==================
 # Add InsurancePolicy
 # ==================
-class InsurancePolicyView(LoginRequiredMixin, View):
+class InsurancePolicyView(LoginRequiredMixin, APIView):
 
-	login_url = STATIC_LOGIN_URL
-	model = InsurancePolicy
-	template = 'accounts/user/dashboard/insurance_policy.html'
 	form = InsurancePolicyForm
 
 	def get(self, request, *args, **kwargs):
 
-		user = self.request.user
+		user = request.user
+
 		try:
+			
 			insurance_policy = InsurancePolicy.objects.get(owner=user)
-			form = self.form(instance=insurance_policy)
+
+			serializer = InsurancePolicySerializer(insurance_policy)
+
+			data = serializer.data
+
 		except:
-			form = self.form
 
-		context = {
-			'user': user,
-			'form': form,
-		}
+			data = {"msg": "No insurance policy on file."}
 
-		return render(request, self.template, context)
+
+
+		return Response(data)
 
 	def post(self, request, *args, **kwargs):
 

@@ -2,6 +2,7 @@ app.controller('ProfileController', ['$location', '$scope',  '$filter', 'Profile
 
 	var vm = this;
 	vm.user = undefined;
+	vm.updateProfile = updateProfile;
 
 	activate();
 
@@ -30,6 +31,23 @@ app.controller('ProfileController', ['$location', '$scope',  '$filter', 'Profile
 			console.error('Could not load profile!');
 		}
 	}
+
+	function updateProfile()
+	{
+		ProfileFactory.updateProfile(vm.user.email, vm.user.first_name, vm.user.last_name, vm.date_of_birth).then(successFn, errorFn);
+
+		function successFn(data, status, headers, config)
+		{
+			// do something
+			console.log(data.data);
+		}
+
+		function errorFn(data, status, headers, config)
+		{
+			console.error("Profile not updated!");
+		}
+	}
+
 	
 
 
