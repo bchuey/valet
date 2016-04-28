@@ -17,7 +17,7 @@
 		
 	{% endblock jsblock %}
 	
-	
+	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/angular-route.js' %}"></script>
 	<script type="text/javascript" src="{% static 'client/main.js' %}"></script>
@@ -35,10 +35,18 @@
 	<script type="text/javascript" src="{% static 'client/accounts/controllers/policy.controller.js' %}"></script>
 	<script type="text/javascript" src="{% static 'client/orders/services/order.factory.js' %}"></script>
 	<script type="text/javascript" src="{% static 'client/orders/controllers/order.controller.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+	
 	<script type="text/javascript" src="{% static 'client/bower_components/oclazyload/dist/ocLazyLoad.min.js' %}"></script>
-	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8&libraries=places"></script>
-  <script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
+	<!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8&libraries=places"></script> -->
+	<script src="{% static 'client/bower_components/angular-simple-logger/dist/angular-simple-logger.min.js' %}"></script>
+	<script src="{% static 'client/bower_components/lodash/dist/lodash.min.js' %}"></script>
+	<script src="{% static 'client/bower_components/angular-google-maps/dist/angular-google-maps.min.js' %}"></script>
+	
+	
+	
+
+	
+
 	{% block stripe %}
 
 	{% endblock stripe %}

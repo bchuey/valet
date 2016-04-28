@@ -135,7 +135,7 @@ def customer_submits_valet_request(request, format=None):
 				# eta should be 30 to 45 mins before parking_exp_time
 
 				# tasks.query_valets.apply_async((scheduled_repark.id,), link=tasks.match_valet_with_repark.s(scheduled_repark.id))
-				tasks.match_valet_with_repark.apply_async(scheduled_repark.id, countdown=60)
+				tasks.match_valet_with_repark.apply_async((scheduled_repark.id,), countdown=60)
 
 			data = serializer.data
 			print(data)
@@ -329,6 +329,7 @@ def valet_on_route(request):
 
 		data = serializer.data
 
+		print user.registered_vehicle.all()[0]
 
 		if user.registered_vehicle.all()[0].parking_permit_zone:
 			# based on User's parking permit

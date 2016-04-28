@@ -1,4 +1,4 @@
-var app = angular.module('valet',['ngRoute', 'oc.lazyLoad']);
+var app = angular.module('valet',['ngRoute', 'oc.lazyLoad', 'uiGmapgoogle-maps']);
 
 app.config(function($interpolateProvider) {
   $interpolateProvider.startSymbol('{[{');
@@ -11,6 +11,14 @@ app.config(['$httpProvider', function($httpProvider){
 	$httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 
+}]);
+
+app.config(['uiGmapGoogleMapApiProvider', function(uiGmapGoogleMapApiProvider){
+	uiGmapGoogleMapApiProvider.configure({
+		key: 'AIzaSyDZWDrf4ut4695uglcR95IUHQGKQ70rHl8',
+		v: '3.23',
+		libraries: 'places',
+	})
 }]);
 
 app.config(['$routeProvider',
