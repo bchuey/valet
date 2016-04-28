@@ -1,0 +1,775 @@
+
+
+
+
+<script type="text/javascript">
+  var socket;
+  var map;
+  var center_marker;
+  var current_pos_marker;
+  var marker_locations = [];
+  var geocoder;
+  var current_latitude;
+  var current_longitude;
+  var locked_position_lat;
+  var locked_position_lng;
+  var centerControlDiv;
+  var controlUI;
+  var controlText;
+  var service;
+  var user_new_position;
+
+  function geocodeLatLng(geocoder, lat, lng) 
+  {
+
+      var latlng = {lat: parseFloat(lat), lng: parseFloat(lng)};
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          if (results[0]) {
+
+            //console.log(results[0].formatted_address);
+            var address = results[0].formatted_address;
+            console.log(address);
+            document.getElementById('id_address').value = address;
+            //return address;
+
+
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+      });
+  }
+
+
+  function showLocation(position) {
+      current_latitude = position.coords.latitude;
+      current_longitude = position.coords.longitude;
+
+      //console.log(current_latitude, current_longitude);
+      console.log("watching user position");
+
+      document.getElementById('id_lat').value = current_latitude;
+      document.getElementById('id_lng').value = current_longitude;
+    
+      geocoder = new google.maps.Geocoder;
+      geocodeLatLng(geocoder, current_latitude, current_longitude);
+
+      var markerLatLng = new google.maps.LatLng(current_latitude,current_longitude);
+
+      var current_pos_img = {
+        url: 'http://127.0.0.1:8000/static/images/bullseye.png',
+        size: new google.maps.Size(32,32),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(16,16),
+      };
+      
+
+      if(current_pos_marker){
+
+        current_pos_marker.setPosition(markerLatLng);
+        console.log("new position. new marker.");
+
+      } else {
+
+        current_pos_marker = new google.maps.Marker({
+          position: markerLatLng,
+          map: map,
+          icon: current_pos_img,
+          animation: google.maps.Animation.DROP,
+        });
+        console.log("initial current pos marker");
+
+      }
+
+      user_new_position = {
+        lat: current_latitude,
+        lng: current_longitude,
+      }
+
+      console.log(user_new_position);
+      var url = "send-current-location/";
+
+      $.ajax({
+
+        type: "POST",
+        url: url,
+        data: user_new_position,
+        success: function(data){
+          console.log('updated position');
+        },
+
+
+      });
+      return false;
+
+      map.setCenter(markerLatLng);
+
+      
+
+  }
+   
+  function errorHandler(err) {
+      if(err.code == 1) {
+         alert("Error: Access is denied!");
+      }
+      
+      else if( err.code == 2) {
+         alert("Error: Position is unavailable!");
+      }
+  }
+
+  // clear the watch that was started earlier
+  function clearWatch() {
+      if (watchID != null) {
+          navigator.geolocation.clearWatch(watchID);
+          watchID = null;
+      }
+  }
+
+  function initiateWatchPosition(){
+    if(navigator.geolocation){
+       // Update every 1 ms seconds
+       var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 1 };
+       geoLoc = navigator.geolocation;
+       watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+    }
+    
+    else{
+       alert("Sorry, browser does not support geolocation!");
+    }
+  }
+
+  function CenterControl(controlDiv, map) {
+
+    // Set CSS for the control border.
+    controlUI = document.createElement('div');
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.marginBottom = '22px';
+    controlUI.style.textAlign = 'center';
+    controlUI.title = 'Click to recenter the map';
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior.
+    controlText = document.createElement('div');
+    controlText.style.color = 'rgb(25,25,25)';
+    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+    controlText.style.fontSize = '16px';
+    controlText.style.lineHeight = '38px';
+    controlText.style.paddingLeft = '5px';
+    controlText.style.paddingRight = '5px';
+    controlText.style.backgroundImage = "url(http://127.0.0.1:8000/static/images/recenter.png)";
+    controlText.style.height = '32px';
+    controlText.style.width = '32px';
+    //controlText.innerHTML = '+';
+    controlUI.appendChild(controlText);
+
+    // Setup the click event listeners: simply set the map to center
+    controlUI.addEventListener('click', function() {
+      var current_center_pos = {lat:current_latitude,lng:current_longitude}
+      map.setCenter(current_center_pos);
+      console.log("The current center position is: " + current_center_pos.lat + ',' + current_center_pos.lng);
+      locked_position_lat = map.getCenter().lat();
+      locked_position_lng = map.getCenter().lng();
+    });
+
+  }
+
+  
+  function initializeMap() 
+  {
+      // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) 
+          {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            document.getElementById('id_lat').value = pos.lat;
+            document.getElementById('id_lng').value = pos.lng;
+
+            console.log(pos.lat);
+            console.log(pos.lng);
+
+            
+            // draw map
+            // set center to the currentPosition lat, lng
+            map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: pos.lat, lng: pos.lng},
+              zoom: 15,
+              mapTypeControl: false,
+              zoomControl: true,
+              zoomControlOptions: {
+                  position: google.maps.ControlPosition.RIGHT_CENTER
+              },
+              scaleControl: true,
+              streetViewControl: true,
+              streetViewControlOptions: {
+                  position: google.maps.ControlPosition.RIGHT_CENTER
+              },
+              draggable: true,
+            });
+
+          var center_marker_img = {
+            url: 'http://127.0.0.1:8000/static/images/pin.png',
+            size: new google.maps.Size(32,32),
+            origin: new google.maps.Point(0,0),
+            anchor: new google.maps.Point(16,32),
+          };
+
+          center_marker = new google.maps.Marker({
+            position: pos,
+            map: map,
+            icon: center_marker_img,
+            animation: google.maps.Animation.DROP,
+          });
+
+          console.log("initial center marker set");
+
+          //This line is what makes the Marker stick to the center of the map
+          google.maps.event.addListener(map, 'tilesloaded', function(){
+            
+            // do something only the first time the map is loaded
+            center_marker.bindTo('position', map, 'center');
+
+          });
+
+          centerControlDiv = document.createElement('div');
+
+          var centerControl = new CenterControl(centerControlDiv, map);
+          centerControlDiv.index = 1;
+          map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
+
+        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
+
+        $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
+
+
+
+        }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                            'Error: The Geolocation service failed.' :
+                            'Error: Your browser doesn\'t support geolocation.');
+      }
+  }
+
+  function displayAutocomplete()
+  {
+      var input = document.getElementById('id_address');
+      var options = {
+        types: ['address'],
+        componentRestrictions: {country:'us'}
+      };
+      autocomplete = new google.maps.places.Autocomplete(input, options);
+
+      google.maps.event.addListener(autocomplete, 'place_changed', function() {
+          var place = autocomplete.getPlace();
+
+      })
+  }
+
+
+  function connectSocket()
+  {
+
+    // socket = io('/users');
+
+    socket = io.connect('http://127.0.0.1:3000/users');
+    console.log('ran connectSocket');
+  }
+
+  function pingServerForValetRequest(repark_obj){
+    // var room_number = uuid;
+    // console.log(room_number);
+    console.log(repark_obj);
+    socket.emit("request-valet", repark_obj);
+    
+
+  }
+
+  function requestRepark()
+  {
+
+    $("#id_is_repark").val("True");
+
+
+    var url = "request/valet/"; 
+
+    $.ajax({
+       type: "POST",
+       url: url,
+       data: $("#locationForm").serialize(), // serializes the form's elements.
+       success: function(data)
+       {
+
+           pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
+           
+           // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+
+           $("#floating-loading-screen").fadeIn(2000, function(){
+            $("h3").fadeIn(1200);
+            $("h4").fadeIn(1200);
+           });
+
+           $("#floating-panel").hide();
+
+          /* $("#requestValet").removeClass("light-blue").addClass("red darken-3");
+           $("#requestValet").attr("onClick", "cancelRequest()");
+           $("#requestValet").text("Cancel Request"); */
+
+           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large requestReparkBtn red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
+       }
+     });
+
+    return false; // avoid to execute the actual submit of the form.
+  }
+
+  function requestDropoff()
+  {
+
+    $("#id_is_dropoff").val("True");
+
+    var url = "request/valet/"; 
+
+    $.ajax({
+       type: "POST",
+       url: url,
+       data: $("#locationForm").serialize(), // serializes the form's elements.
+       success: function(data)
+       {
+
+           pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
+           
+           // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+
+           $("#floating-loading-screen").fadeIn(2000, function(){
+            $("h3").fadeIn(1200);
+            $("h4").fadeIn(1200);
+           });
+
+           $("#floating-panel").hide();
+
+           /* $("#requestValet").removeClass("light-blue").addClass("red darken-3");
+           $("#requestValet").attr("onClick", "cancelRequest()");
+           $("#requestValet").text("Cancel Request"); */
+
+           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large requestReparkBtn red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
+       }
+     });
+
+    return false; // avoid to execute the actual submit of the form.
+  }
+
+  function requestScheduledRepark()
+  {
+
+
+    // display the additional input fields (start_date,end_date,time_limit) in modal
+    $('#scheduledReparkPanel').openModal();
+
+    
+    $("#start_date").change(function(){
+      var start_date = $(this).val();
+      $("#id_scheduled_start_date").val(start_date);
+    });
+
+    $("#end_date").change(function(){
+      var end_date = $("#end_date").val();
+      $("#id_scheduled_end_date").val(end_date);
+    });
+
+    $("#parking_hour_limit").change(function(){
+      var parking_hour_limit = $(this).val();
+      $("#id_time_limit").val(parking_hour_limit);
+    });
+
+
+  }
+
+  function activateScheduledRepark()
+  {
+
+    $("#id_is_scheduled_repark").val("True");
+    // run AJAX post request
+    var url = 'request/valet/';
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: $("#locationForm").serialize(),
+      success: function(data)
+      {
+        // on success,
+        // somehow put request in a queue
+        // when it is within 30 mins to the parking_exp_time
+        // send a ping to valets
+        console.log("User scheduled a repark!");
+        console.log(data);
+        socket.emit('new-scheduled-repark', data);
+
+        // reset the form
+        $("#start_date").val("");
+        $("#end_date").val("");
+        $("#parking_hour_limit").val("");
+
+        // make it disappear
+        $("#scheduledReparkPanel").closeModal();
+
+        // show confirmation message
+        Materialize.toast('Your request has been scheduled.', 8000, 'rounded')
+
+      },
+
+    });
+
+    return false;
+  } 
+
+
+  function cancelRequest(){
+  }
+
+  function getLatestRequest()
+  {
+    var url = 'request/latest/';
+    $.ajax({
+      type: 'GET',
+      url: url,
+      data: null,
+      success: function(data)
+      {
+
+        // retrieve latest request
+        // set the floating panel to contain latest dropoff location
+        address = data.dropoff_location.full_address;
+        document.getElementById('id_address').value = address;
+
+        console.log(address);
+        var msg = 'Your vehicle was last parked at: ' + address;
+        Materialize.toast(msg, 6000, 'rounded');
+
+        // run directions service???
+
+      },
+
+    });
+
+    return false; 
+  }
+
+  function lockPosition()
+  {
+    document.getElementById("id_lat").value = locked_position_lat;
+    document.getElementById("id_lng").value = locked_position_lng;
+
+    geocoder = new google.maps.Geocoder;
+    geocodeLatLng(geocoder, locked_position_lat, locked_position_lng);
+  }
+
+
+</script>
+  
+<script type="text/javascript">
+
+  $(document).ready(function(){
+    connectSocket();
+    initializeMap();
+    initiateWatchPosition();
+    displayAutocomplete();
+
+    
+
+    socket.on("request-accepted", function(data){
+
+      console.log("request has been accepted");
+      Materialize.toast('Your request has been accepted.', 3000, 'rounded');
+
+      center_marker.setMap(null);
+      marker_locations = [];
+
+
+      console.log(data);
+      $("#floating-loading-screen").hide();
+      $("#floating-panel").show("slow");
+      $("#id_address").attr("disabled", "true");
+      $("#floating-button").hide();
+
+      // $("#requestValet").attr("disabled", "true");
+      var origin_lat = data.valet_start_pos.lat;
+      var origin_lng = data.valet_start_pos.lng;
+
+      var origin_latlng = {
+        lat: parseFloat(origin_lat),
+        lng: parseFloat(origin_lng),
+      }
+
+      var destination_lat = data.pickup_location.lat;
+      var destination_lng = data.pickup_location.lng;
+
+      var destination_latlng = {
+        lat: parseFloat(destination_lat),
+        lng: parseFloat(destination_lng),
+      }
+
+
+
+      var directionsDisplay = new google.maps.DirectionsRenderer;
+      var directionsService = new google.maps.DirectionsService;
+
+      directionsDisplay.setMap(map);
+      directionsDisplay.setPanel(document.getElementById('right-panel'));
+
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay, origin_latlng, destination_latlng){
+        directionsService.route({
+          origin: origin_latlng,
+          destination: destination_latlng,
+          travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status){
+          if(status === google.maps.DirectionsStatus.OK){
+            directionsDisplay.setDirections(response);
+            console.log(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      };
+
+
+      calculateAndDisplayRoute(directionsService, directionsDisplay,origin_latlng,destination_latlng);
+
+    });
+
+
+    socket.on("update-valet-location", function(new_position){
+
+      // draw symbol for new location of valet
+      var lat = new_position.lat;
+      var lng = new_position.lng;
+
+      pos = {
+        lat:lat,
+        lng:lng,
+      }
+
+     // marker = new google.maps.Marker({
+        //position: pos,
+        //setMap: map,
+       // animation: google.maps.Animation.DROP,
+        //draggable: false,
+
+       // });
+      
+    });
+
+    socket.on("alert-valet-arrived", function(){
+      //alert("Valet has arrived");
+      Materialize.toast('Valet has arrived', 3000, 'rounded')
+    });
+
+    socket.on("alert-valet-enroute", function(){
+      //alert("Valet looking for a new parking location.");
+      Materialize.toast('Your valet is looking for a new parking spot.', 3000, 'rounded')
+    });
+
+
+    socket.on("vehicle-new-location", function(data){
+
+      var new_loc_msg = "Your vehicle's new location: ";
+      new_loc_msg += data.dropoff_location.full_address;
+
+      // do something else here for the user???
+      console.log("your vehicle's new location: ");
+      console.log(data.dropoff_location.full_address);
+
+
+      // just ping the new location??
+      // OR also show option to be directed to new location
+
+      
+      var lat = data.dropoff_location.lat;
+      var lng = data.dropoff_location.lng;
+
+      pos = {
+        lat:parseFloat(lat),
+        lng:parseFloat(lng),
+      }
+
+      console.log(pos.lat + ',' + pos.lng);
+
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: pos.lat, lng: pos.lng},
+        zoom: 17,
+      });
+
+      marker_locations.push(pos);
+      for(var i = 0; i < marker_locations.length; i++)
+      {
+
+        marker = new google.maps.Marker({
+          position: new google.maps.LatLng(marker_locations[i].lat,marker_locations[i].lng),
+          map: map,
+          animation: google.maps.Animation.DROP,
+          draggable: false,
+        });
+        
+
+      }
+
+      Materialize.toast(new_loc_msg, 3000, 'rounded');
+
+      // redirect user to '/user'
+      window.location.href = '/user';
+
+
+    });
+
+    socket.on("requested-repark-completed", function(){
+
+      marker_locations = [];
+
+      var url = "/completed";
+
+      $.ajax({
+        type:"GET",
+        url: url,
+        data: null,
+        success: function(data)
+        {
+          // do something?
+          window.location.href = '/';
+          console.log("request was completed");
+        }
+
+      });
+
+    });
+
+    socket.on("calculate-distance", function(data){
+
+
+      var output = JSON.parse(data);
+      console.log('this is the array of locations: ');
+      console.log(output);
+
+      // loop through the array of locations
+      // calculate using distance matrix
+      // grab the times
+      // run calculation to find the average time
+      // display the time somewhere
+
+      var distance_matrix_destination = user_new_position.lat + ',' + user_new_position.lng;
+
+      // run distance matrix to get the time
+      service = new google.maps.DistanceMatrixService;
+      service.getDistanceMatrix({
+        origins: [origin1],
+        destinations: [distance_matrix_destination],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false
+      }, function(response, status) {
+        if (status !== google.maps.DistanceMatrixStatus.OK) {
+          alert('Error was: ' + status);
+        } else {
+          
+          console.log('distance matrix response: ');
+          console.log(response);
+
+
+        }
+      });
+
+    });
+  });
+  $(window).load(function(){
+    google.maps.event.addListener(map, 'dragstart', function(event){
+
+      $("#floating-button").hide();
+    });
+
+    // Drag map, then set new lat,lng coordinates
+    google.maps.event.addListener(map, 'dragend', function (event) {
+
+      console.log(map.getCenter().lat());
+      console.log(map.getCenter().lng());
+
+      //document.getElementById("id_lat").value = map.getCenter().lat();
+      //document.getElementById("id_lng").value = map.getCenter().lng();
+
+      locked_position_lat = map.getCenter().lat();
+      locked_position_lng = map.getCenter().lng();
+
+      geocoder = new google.maps.Geocoder;
+      geocodeLatLng(geocoder, map.getCenter().lat(), map.getCenter().lng());
+
+      $("#floating-button").show();
+
+    });
+
+  });
+
+    
+</script>
+
+<div id='floating-panel'>
+
+<form action="{% url 'request-valet' %}" class='col s12' id='locationForm' method='POST'>
+
+  <input id='id_address' type='text' name='address' placeholder='Enter your address'/>
+  <input id='id_lat' type='hidden' name='lat' />
+  <input id='id_lng' type='hidden' name='lng' />
+  
+  <input id="id_is_repark" type='hidden' name="is_repark"/>
+  <input id="id_is_dropoff" type='hidden' name="is_dropoff"/>
+
+  <!-- 
+  if scheuled repark is selected,
+  open up a modal with additional form fields:
+  - start date (default=today)
+  - end date (default=today)
+  - time
+  - location (use the floating panel address, but remind user to confirm address)
+
+  -->
+  <input id='id_scheduled_start_date' type='hidden' name='scheduled_start_date' />
+  <input id='id_scheduled_end_date' type='hidden' name='scheduled_end_date' />
+  <input id='id_time_limit' type='hidden' name='time_limit' />
+  <input id='id_is_scheduled_repark' type='hidden' name='is_scheduled_repark'/>
+</form>
+
+</div>
+
+<div id="scheduledReparkPanel" class="modal" >
+  <div class="modal-content">
+    <label for="start_date">Date of Repark</label>
+    <input type='date' class='datepicker' id='start_date'/>
+    <label for="end_date">Last Day of Reparking</label>
+    <input type='date' class='datepicker' id='end_date' />
+    <label for="parking_hour_limit">Time Limit</label>
+    <input type='number' class='input-field' id='parking_hour_limit' placeholder='Enter # of hours' />
+  </div>
+  <div class="modal-footer">
+    <button id='activateScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='activateScheduledRepark()'>Submit Request</button>
+  </div>
+</div>
+
+<div id="map" class="jumbotron jumbotron-map">
+
+</div>
+
+

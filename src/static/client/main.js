@@ -1,4 +1,4 @@
-var app = angular.module('valet',['ngRoute']);
+var app = angular.module('valet',['ngRoute', 'oc.lazyLoad']);
 
 app.config(function($interpolateProvider) {
   $interpolateProvider.startSymbol('{[{');
@@ -52,6 +52,11 @@ app.config(['$routeProvider',
 				controller: 'InsurancePolicyController',
 				controllerAs: 'vm',
 				templateUrl: '/static/client/accounts/templates/insurance_policy.html',
+			})
+			.when('/maps/user', {
+				controller: 'UserMapController',
+				controllerAs: 'vm',
+				templateUrl: '/static/client/orders/templates/users/map.html',
 			})
 			.otherwise({
 				redirectTo: '/',

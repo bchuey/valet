@@ -62,7 +62,7 @@ urlpatterns = [
     url(r'^valet/send-current-location/$', update_current_position, name='update-position'),
 
     # base index/home page
-	url(r'^$', views.Home.as_view(), name='home'),
+	url(r'^$', views.Home.as_view(), name='home'),     # loads base.html
     url(r'^accounts/', include('accounts.urls')),
 
     # admin
