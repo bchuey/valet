@@ -2,6 +2,7 @@ app.controller('VehicleController', ['$location', '$scope', 'VehicleFactory', fu
 
 	var vm = this;
 	vm.vehicle = undefined;
+	vm.updateVehicle = updateVehicle;
 
 	activate();
 
@@ -19,6 +20,22 @@ app.controller('VehicleController', ['$location', '$scope', 'VehicleFactory', fu
 		function errorFn(data, status, headers, config)
 		{
 			console.error('Could not load your registered vehicle!');
+		}
+	}
+
+	function updateVehicle()
+	{
+		VehicleFactory.updateVehicle(vm.vehicle.make, vm.vehicle.model, vm.vehicle.year, vm.vehicle.color, vm.vehicle.license_plate_number, vm.vehicle.updated_registration_tags, vm.vehicle.parking_permit_zone).then(successFn, errorFn);
+
+		function successFn(data, status, headers, config)
+		{
+			console.log(data.data);
+
+		}
+
+		function errorFn(data, status, headers, config)
+		{
+			console.error('Could not update your vehicle information!');
 		}
 	}
 	

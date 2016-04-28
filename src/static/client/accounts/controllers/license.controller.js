@@ -2,6 +2,7 @@ app.controller('LicenseController', ['$location', '$scope', '$filter', 'LicenseF
 
 	var vm = this;
 	vm.license = undefined;
+	vm.updateLicense = updateLicense;
 
 	activate();
 
@@ -31,6 +32,22 @@ app.controller('LicenseController', ['$location', '$scope', '$filter', 'LicenseF
 		}
 	}
 	
+	function updateLicense()
+	{
+		LicenseFactory.updateLicense(vm.license.legal_first_name, vm.license.legal_last_name, vm.license.license_id_number, vm.license.registered_city, vm.license_registered_state, vm.date_of_birth).then(successFn, errorFn);
+
+		function successFn(data, status, headers, config)
+		{
+			// do something
+
+		}
+
+		function errorFn(data, status, headers, config)
+		{
+			console.error('Could not update your license!');
+		}
+
+	}
 
 
 }]);

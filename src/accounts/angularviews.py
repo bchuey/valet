@@ -101,7 +101,6 @@ class RegisteredVehicleView(LoginRequiredMixin, APIView):
 		
 		user = request.user
 		
-		
 		try:
 
 			vehicle = RegisteredVehicle.objects.get(owned_by=user)
@@ -118,25 +117,32 @@ class RegisteredVehicleView(LoginRequiredMixin, APIView):
 		return Response(data)
 
 	def post(self, request, *args, **kwargs):
-		form = self.form(request.POST)
-		if form.is_valid():
-			user = self.request.user
-			try:
-				vehicle = RegisteredVehicle.objects.get(owned_by=user)
-			except:
-				vehicle = RegisteredVehicle()
+		
+		user = request.user
 
+		try: 
+			vehicle = RegisteredVehicle.objects.get(owned_by=user)
+		except:
+			vehicle = Vehicle()
 			vehicle.owned_by = user
-			vehicle.make = form.cleaned_data.get('make')
-			vehicle.model = form.cleaned_data.get('model')
-			vehicle.color = form.cleaned_data.get('color')
-			vehicle.license_plate_number = form.cleaned_data.get('license_plate_number')
-			vehicle.year = form.cleaned_data.get('year')
-			vehicle.updated_registration_tags = form.cleaned_data.get('updated_registration_tags')
-			vehicle.parking_permit_zone = form.cleaned_data.get('parking_permit_zone')
-			vehicle.save()
 
-			return HttpResponseRedirect('%s'%(reverse('accounts:vehicle')))
+		data = request.data
+
+		vehicle.make = data['make']
+		vehicle.model = data['model']
+		vehicle.color = data['color']
+		vehicle.year = data['year']
+		vehicle.license_plate_number = data['license_plate_number']
+		vehicle.updated_registration_tags = data['updated_registration_tags']
+		vehicle.parking_permit_zone = data['parking_permit_zone']
+		vehicle.save()
+
+		serializer = RegisteredVehicleSerializer(vehicle)
+
+		data = serializer.data
+
+		return Response(data)
+
 
 # ==================
 # Add DriversLicense
@@ -166,26 +172,39 @@ class DriversLicenseView(LoginRequiredMixin, APIView):
 		return Response(data)
 
 	def post(self, request, *args, **kwargs):
-		form = self.form(request.POST)
-		if form.is_valid():
-			user = self.request.user
-			try:
-				drivers_license = DriversLicense.objects.get(owned_by=user)
-			except:
-				drivers_license = DriversLicense()
+		
+		user = request.user
 
-			drivers_license.owned_by = user
-			drivers_license.legal_first_name = form.cleaned_data.get('legal_first_name')
-			drivers_license.legal_last_name = form.cleaned_data.get('legal_last_name')
-			drivers_license.date_of_birth = form.cleaned_data.get('date_of_birth')
-			drivers_license.license_id_number = form.cleaned_data.get('license_id_number')
-			drivers_license.registered_city = form.cleaned_data.get('registered_city')
-			drivers_license.registered_state = form.cleaned_data.get('registered_state')
-			drivers_license.save()
-			print("success!")
-			return HttpResponseRedirect('%s'%(reverse('accounts:license')))
-		# print("form not valid")
-		# return HttpResponseRedirect('%s'%(reverse('accounts:profile')))
+		try: 
+
+			license = DriversLicense.objects.get(owned_by=user)
+
+		except:
+
+			license = DriversLicense()
+			license.owned_by = user
+
+		data = request.data
+
+		license.legal_first_name = data['legal_first_name']
+		license.legal_last_name = data['legal_last_name']
+		license.license_id_number = data['license_id_number']
+		license.registered_city = data['registered_city']
+		license.registered_state = data['registered_state']
+
+		unicode_dob = data['date_of_birth']
+		convert_dob = datetime.strptime(unicode_dob, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
+		dob = datetime.strptime(convert_dob, '%Y-%m-%d')
+		dob = dob.date()
+
+		license.date_of_birth = dob
+		license.save()
+
+		serializer = DriversLicenseSerializer(license)
+
+		data = serializer.data
+
+		return Response(data)
 
 # ==================
 # Add InsurancePolicy
@@ -217,28 +236,27 @@ class InsurancePolicyView(LoginRequiredMixin, APIView):
 	def post(self, request, *args, **kwargs):
 
 		
-		form = self.form(request.POST)
-		if form.is_valid():
+		
+		user = self.request.user
 
-			user = self.request.user
-
-			try:
-				insurance_policy = InsurancePolicy.objects.get(owner=user)
-			except:
-				insurance_policy = InsurancePolicy()
-
+		try:
+			insurance_policy = InsurancePolicy.objects.get(owner=user)
+		except:
+			insurance_policy = InsurancePolicy()
 			insurance_policy.owner = user
-			insurance_policy.company = form.cleaned_data.get('company')
-			insurance_policy.policy_number = form.cleaned_data.get('policy_number')
-			insurance_policy.agent_first_name = form.cleaned_data.get('agent_first_name')
-			insurance_policy.agent_last_name = form.cleaned_data.get('agent_last_name')
-			insurance_policy.agent_phone_number = form.cleaned_data.get('agent_phone_number')
 
 
-			# insurance_policy.insured_vehicle = 
-			insurance_policy.save()
+		insurance_policy.company = data['company']
+		insurance_policy.policy_number = data['policy_number']
+		insurance_policy.agent_first_name = data['agent_first_name']
+		insurance_policy.agent_last_name = data['agent_last_name']
+		insurance_policy.agent_phone_number = data['agent_phone_number']
 
-			return HttpResponseRedirect('%s'%(reverse('accounts:insurance')))
+
+		# insurance_policy.insured_vehicle = 
+		insurance_policy.save()
+
+		return Response(data)
 
 # ==================
 # Requests ListView
