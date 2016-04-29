@@ -147,11 +147,15 @@
   function CenterControl(controlDiv, map) {
 
     // Set CSS for the control border.
-    controlUI = document.createElement('div');
+    var controlUI = document.createElement('div');
+    controlUI.style.backgroundColor = '#fff';
+    controlUI.style.border = '2px solid #fff';
+    controlUI.style.borderRadius = '3px';
+    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
     controlUI.style.cursor = 'pointer';
     controlUI.style.marginBottom = '22px';
     controlUI.style.textAlign = 'center';
-    controlUI.title = 'Click to recenter the map';
+    controlUI.title = 'Click to recenter on your current position';
     controlDiv.appendChild(controlUI);
 
     // Set CSS for the control interior.
@@ -242,11 +246,13 @@
 
           centerControlDiv = document.createElement('div');
 
+
           var centerControl = new CenterControl(centerControlDiv, map);
           centerControlDiv.index = 1;
+          centerControlDiv.style['margin-right'] = '10px';
           map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
 
-        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large  indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><div id='optionsTitlePanel' class='row valign-wrapper'><span class='col s4 valign center-align'>REPARK</span><span class='col s4 valign center-align'>DROPOFF</span><span class='col s4 valign center-align'>SCHEDULE REPARK</span></div><div id='optionsIconPanel' class='row'><button id='requestRepark' class='col s4 btn-large' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i></button><button id='requestDropoff' class='col s4 btn-large' onClick='requestDropoff()'></button><button id='requestScheduledRepark' class='col s4 btn-large' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i></button></div></div><div id='loading-screen'></div>");
 
         $("#loading-screen").append("<div class='col s12 floating-request-screen'><div class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
@@ -319,7 +325,7 @@
 
            pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
            
-           // $("#loading-screen").append("<div class='col s12 floating-request-screen'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+           
 
            $(".floating-request-screen").fadeIn(2000, function(){
             $("h3").fadeIn(1200);
@@ -355,7 +361,7 @@
 
            pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
            
-           // $("#loading-screen").append("<div class='col s12 floating-request-screen'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+           
 
            $(".floating-request-screen").fadeIn(2000, function(){
             $("h3").fadeIn(1200);
@@ -703,7 +709,7 @@
   {% block window_load_js %}
 
     google.maps.event.addListener(map, 'dragstart', function(event){
-
+      $("nav").hide();
       $("#floating-button").hide();
     });
 
@@ -721,7 +727,7 @@
 
       geocoder = new google.maps.Geocoder;
       geocodeLatLng(geocoder, map.getCenter().lat(), map.getCenter().lng());
-
+      $("nav").show();
       $("#floating-button").show();
 
     });
@@ -774,7 +780,7 @@
     <input type='number' class='input-field' id='parking_hour_limit' placeholder='Enter # of hours' />
   </div>
   <div class="modal-footer">
-    <button id='activateScheduledRepark' class='col s4 waves-effect waves-light btn-large teal darken-1' onClick='activateScheduledRepark()'>Submit Request</button>
+    <button id='activateScheduledRepark' class='col s4 waves-effect waves-light btn-large light-blue accent-3' onClick='activateScheduledRepark()'>Submit Request</button>
   </div>
 </div>
 

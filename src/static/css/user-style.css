@@ -16,21 +16,17 @@
   font-family: 'Roboto','sans-serif';
   line-height: 30px;
   padding-left: 10px;
-  
+
 }
 
 /* Set Location Button */
 
 #floating-button {
 
-  position: absolute;
-  top: 38%;
-  left: 50%;
-  margin-left: -180px;
-  width: 350px;
+  position: relative;
+  top: 42%;
   z-index: 5;
   text-align:center;
-  padding: 5px;
   font-family: 'Roboto','sans-serif';
   line-height: 30px;
 
@@ -46,6 +42,33 @@
   width: 100% !important;
   margin-bottom: 0px;
 
+}
+
+#floatingButtons>.row {
+
+  margin-bottom: 0px;
+
+}
+
+#optionsTitlePanel {
+
+    padding: 12px 0px;
+    background-color: #37474f;
+    color: #ffc400;
+
+}
+
+
+#optionsIconPanel {
+  
+  background-color: #455a64;  
+
+}
+
+#optionsIconPanel>button {
+
+  border-radius: 0px;
+  background-color: transparent;
 }
 
 /* Scheduled Repark Modal */
@@ -67,6 +90,14 @@
   border-top: none;
 
 }
+
+/* id="activateScheduledRepark" */
+
+#activateScheduledRepark {
+
+  width: 100%;
+
+}
   
 
 /* Angular Google Maps */
@@ -77,6 +108,76 @@
   width: 100%;
   position: absolute; 
 
+}
+
+/* Galaxy s5 */
+@media only screen and (min-width:360px) and (max-width:374px)
+{
+  #floating-panel {
+
+    left: 51.5%;
+
+  }
+
+  #floating-button {
+
+    top: 38%;
+
+  }
+
+  #optionsTitlePanel>span {
+    
+    font-size: 10px;
+    
+  }
+
+}
+
+/* iPhone 6 */
+@media only screen and (min-width:375px) and (max-width:413px)
+{
+  #floating-panel {
+
+    left: 52%;
+
+  }
+
+  #floating-button {
+
+    top: 39%;
+
+  }
+
+  #optionsTitlePanel>span {
+    
+    font-size: 10px;
+
+  }
+
+}
+
+/* iPhone 6 Plus */
+@media only screen and (min-width:414px)
+{
+
+    #floating-panel {
+
+      left: 52%;
+
+    }
+
+    #floating-button {
+
+      top: 40%;
+
+    }
+
+    #optionsTitlePanel>span {
+    
+      font-size: 10px;
+
+    }
+  
 }
 
 
