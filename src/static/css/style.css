@@ -1,15 +1,37 @@
+html, body {
+
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+}
+
+#map {
+
+  height: 100%;
+
+}
+
 .jumbotron-map {
+
 	padding-top: 0px;
 	padding-bottom: 0px;
 	margin-bottom: 0px;
-}
 
-.requestValetBtn {
-	border-radius: 0px;
 }
 
 
-#top-menu-btn {
+.mobile-nav {
+  
+  position: absolute;
+  top: 0;
+  z-index: 10;
+
+}
+
+
+.top-menu-btn {
+    
     height: 64px;
     line-height: 60px;
     float: left;
@@ -17,27 +39,49 @@
     z-index: 1;
     margin-left: 5px;
     margin-right: 5px;
-}
 
-#onscreen-message {
-	top: 40%;
 }
 
 .dashboard-wrapper {
+
 	margin-top: 100px;
+
 }
 
 .profile-pic-frame {
+
 	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+
+}
+
+.floating-request-screen {
+
+  position: absolute;
+  top: 7.4%;
+  width: 100%;
+  z-index: 8;
+  background-color: #000;
+  color: #fff;
+  opacity: .8;
+  height: 85.43%;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  display: none;
+
 }
 
 
 @media only screen and (min-width:601px){
-	#top-menu-btn {
+
+	.top-menu-btn {
+
 	    height: 64px;
 	    line-height: 68px;
 	    float: left;
 	    position: relative;
 	    z-index: 1;
+
 	}
+	
 }

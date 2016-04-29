@@ -216,7 +216,7 @@
            console.log("successfully retrieved repark obj");
            console.log(data);
            current_request = true;
-           $("#floating-request-screen").hide();
+           $(".floating-request-screen").hide();
            socket.emit('join-room', data);
 
 
@@ -512,14 +512,14 @@
       }
       
 
-      $("#request-screen").append("<div id='floating-request-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Incoming Request</h3><h4>You have 30 seconds to accept.</h4></div></div>");
+      $("#request-screen").append("<div class='col s12 floating-request-screen'><div id='onscreen-message' class='col s12'><h3>Incoming Request</h3><h4>You have 30 seconds to accept.</h4></div></div>");
 
-      $("#floating-request-screen").fadeIn(2000, function() {
+      $(".floating-request-screen").fadeIn(2000, function() {
         $("h3").fadeIn(1200);
         $("h4").fadeIn(1200);
       });
 
-      $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large actionBtn light-blue darken-1' onClick='requestAccepted()'>Accept Request</button></div>");
+      $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large light-blue darken-1' onClick='requestAccepted()'>Accept Request</button></div>");
       // use data to display on html screen
 
 
@@ -533,7 +533,7 @@
     });
 
     socket.on("valet-assigned-to-request", function(){
-      $("#floating-request-screen").hide();
+      $(".floating-request-screen").hide();
       $("#actionButton").hide();
     });
 
@@ -616,7 +616,7 @@
             // if success:
             // change button
             if(data.is_scheduled_repark){
-              $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large actionBtn light-blue darken-1' onClick='arrived()'>Arrived</button></div>");
+              $("#map").append("<div class='row'><button id='actionButton' class='col s12 waves-effect waves-light btn-large light-blue darken-1' onClick='arrived()'>Arrived</button></div>");
             } else {
 
               $("#actionButton").text("Arrived");

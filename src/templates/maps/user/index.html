@@ -246,9 +246,9 @@
           centerControlDiv.index = 1;
           map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
 
-        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large requestReparkBtn light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large requestDropoffBtn indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><button id='requestRepark' class='col s4 waves-effect waves-light btn-large light-blue darken-1' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i> Repark</button><button id='requestDropoff' class='col s4 waves-effect waves-light btn-large  indigo darken-1' onClick='requestDropoff()'>Dropoff</button><button id='requestScheduledRepark' class='col s4 waves-effect waves-light btn-large teal darken-1' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i> Schedule Repark</button></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
 
-        $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><div id='onscreen-message' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
+        $("#loading-screen").append("<div class='col s12 floating-request-screen'><div class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
 
 
@@ -319,9 +319,9 @@
 
            pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
            
-           // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+           // $("#loading-screen").append("<div class='col s12 floating-request-screen'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
 
-           $("#floating-loading-screen").fadeIn(2000, function(){
+           $(".floating-request-screen").fadeIn(2000, function(){
             $("h3").fadeIn(1200);
             $("h4").fadeIn(1200);
            });
@@ -332,7 +332,7 @@
            $("#requestValet").attr("onClick", "cancelRequest()");
            $("#requestValet").text("Cancel Request"); */
 
-           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large requestReparkBtn red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
+           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
        }
      });
 
@@ -355,9 +355,9 @@
 
            pingServerForValetRequest(data); // ping server to broadcast request to '/valets'
            
-           // $("#loading-screen").append("<div id='floating-loading-screen' class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
+           // $("#loading-screen").append("<div class='col s12 floating-request-screen'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div>");
 
-           $("#floating-loading-screen").fadeIn(2000, function(){
+           $(".floating-request-screen").fadeIn(2000, function(){
             $("h3").fadeIn(1200);
             $("h4").fadeIn(1200);
            });
@@ -368,7 +368,7 @@
            $("#requestValet").attr("onClick", "cancelRequest()");
            $("#requestValet").text("Cancel Request"); */
 
-           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large requestReparkBtn red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
+           $("#floatingButtons").replaceWith("<div id='floatingButtons' class='row'><button id='cancelRequest' class='col s12 waves-effect waves-light btn-large red darken-3' onClick='cancelRequest()'><i class='fa fa-ban' aria-hidden='true'></i>Cancel</button></div>");
        }
      });
 
@@ -504,7 +504,7 @@
 
 
       console.log(data);
-      $("#floating-loading-screen").hide();
+      $(".floating-request-screen").hide();
       $("#floating-panel").show("slow");
       $("#id_address").attr("disabled", "true");
       $("#floating-button").hide();
@@ -774,7 +774,7 @@
     <input type='number' class='input-field' id='parking_hour_limit' placeholder='Enter # of hours' />
   </div>
   <div class="modal-footer">
-    <button id='activateScheduledRepark' class='col s4 waves-effect waves-light btn-large requestDropoffBtn teal darken-1' onClick='activateScheduledRepark()'>Submit Request</button>
+    <button id='activateScheduledRepark' class='col s4 waves-effect waves-light btn-large teal darken-1' onClick='activateScheduledRepark()'>Submit Request</button>
   </div>
 </div>
 

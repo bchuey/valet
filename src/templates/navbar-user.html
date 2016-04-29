@@ -1,5 +1,5 @@
 
-  <nav id="mobile-nav" class="col s12">
+  <nav class="col s12 mobile-nav">
     <ul class="right hide-on-med-and-down">
       <li><a href="{% url 'accounts:profile' %}">User Account</a></li>
       <li><a href="{% url 'accounts:payment' %}">Payment</a></li>
@@ -25,6 +25,6 @@
       <li><a href="{% url 'logout' %}">Logout</a></li>
     </ul>
     <a href="#" data-activates="slide-out" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
-    <a href="{% url 'user-map' %}"><i id="top-menu-btn" class="fa fa-globe fa-2x"></i></a>
-    <a href="" onclick="return getLatestRequest();"><i id="top-menu-btn" class="fa fa-undo fa-2x"></i></a>
+    <a href="{% url 'user-map' %}"><i class="fa fa-globe fa-2x top-menu-btn"></i></a>
+    <a href="" onclick="return getLatestRequest();"><i class="top-menu-btn fa fa-undo fa-2x "></i></a>
   </nav>

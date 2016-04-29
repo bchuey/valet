@@ -1,12 +1,8 @@
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-#map {
-  height: 100%;
-}
+
+/* Google Maps Autocomplete  Display */
+
 #floating-panel {
+
   position: absolute;
   top: 12%;
   left: 50%;
@@ -20,25 +16,13 @@ html, body {
   font-family: 'Roboto','sans-serif';
   line-height: 30px;
   padding-left: 10px;
+  
 }
 
-/*#scheduledReparkPanel {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  margin-left: -180px;
-  width: 350px;
-  z-index: 8;
-  background-color: #fff;
-  padding: 5px;
-  border: 1px solid #999;
-  text-align: center;
-  font-family: 'Roboto','sans-serif';
-  line-height: 30px;
-  padding-left: 10px;
-}*/
+/* Set Location Button */
 
 #floating-button {
+
   position: absolute;
   top: 38%;
   left: 50%;
@@ -46,100 +30,25 @@ html, body {
   width: 350px;
   z-index: 5;
   text-align:center;
-  /*background-color: #fff;*/
   padding: 5px;
-  /*border: 1px solid #999;*/
   font-family: 'Roboto','sans-serif';
   line-height: 30px;
-}
-#floating-button2 {
-  position: absolute;
-  top: 10px;
-  left: 25%;
-  z-index: 5;
-  /*background-color: #fff;*/
-  padding: 5px;
-  /*border: 1px solid #999;*/
-  text-align: center;
-  font-family: 'Roboto','sans-serif';
-  line-height: 30px;
-  padding-left: 10px;
-}
-#floating-button2 {
-  position: absolute;
-  top: 80%;
-  left: 50%;
-  margin-left: -180px;
-  width: 350px;
-  z-index: 5;
-  /*background-color: #fff;*/
-  padding: 5px;
-  /*border: 1px solid #999;*/
-}
-#floating-loading-screen {
-
-  position: absolute;
-  top: 7.4%;
-  /* left: 50%; */
-  /* margin-left: -180px; */
-  width: 100%;
-  z-index: 8;
-  background-color: #000;
-  /* padding: 5px; */
-  /* border: 1px solid #999; */
-  color: #fff;
-  opacity: .8;
-  height: 85.43%;
-  text-align: center;
-  font-family: 'Roboto','sans-serif';
-  line-height: 30px;
-  display: none;
 
 }
+
+/* Container for Main Buttons */
 
 #floatingButtons {
+
   position: absolute;
   z-index: 5;
   bottom: 0;
   width: 100% !important;
   margin-bottom: 0px;
+
 }
-/*#requestRepark {
-  position: absolute;
-  z-index: 5;
-  bottom: 0;
-}
-#requestDropoff {
-  position: absolute;
-  z-index: 5;
-  bottom: 0;
-  right: 0;
-}
-#requestScheduledRepark {
-  position: absolute;
-  z-index: 5;
-  bottom: 0;
-  left: 33.3333%;
-}*/
-#mainNavbar {
-  position: absolute;
-  top: 0;
-  z-index: 10;
-  border: none;
-  border-bottom: 1px solid #000;
-  border-radius: 0px;
-}
-#latlng {
-  width: 225px;
-}
-#mobile-nav {
-  position: absolute;
-  top: 0;
-  z-index: 10;
-}
-#sidenav-overlay {
-  z-index: 0;
-}
+
+/* Scheduled Repark Modal */
 
 .modal .modal-footer {
 
@@ -160,9 +69,10 @@ html, body {
 }
   
 
-
+/* Angular Google Maps */
 
 .angular-google-map-container { 
+
   height: 100%;
   width: 100%;
   position: absolute; 
