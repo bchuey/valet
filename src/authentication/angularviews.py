@@ -9,71 +9,66 @@ from authentication.forms import LoginForm
 from accounts.models import User
 from accounts.forms import UserCreationForm
 from accounts.serializers import UserSerializer
+from accounts import tasks
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from datetime import datetime
+
 class Register(APIView):
 
 	form = UserCreationForm
-	template = 'authentication/register.html'
-
-	def get(self, request, *args, **kwargs):
-
-		form = self.form
-		context = {
-			'form': form,
-		}
-
-		return render(request, self.template, context)
 
 	def post(self, request, *args, **kwargs):
 
-		form = self.form(request.POST, request.FILES)
+		data = request.data
 
-		context = {
-			'form': form,
-		}
+		print '=========='
+		print data
+		print '=========='
 
-		print "-----------"
-		print "new user register:"
-		print request.POST
-		print "------------"
+		unicode_dob = data['date_of_birth']
+		convert_dob = datetime.strptime(unicode_dob, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
+		dob = datetime.strptime(convert_dob, '%Y-%m-%d')
+		dob = dob.date()
+		date_of_birth = dob
 
-		if form.is_valid():
+		email = data['email']
+		first_name = data['first_name']
+		last_name = data['last_name']
+		password = data['password']
 
-			email = form.cleaned_data.get('email')
-			first_name = form.cleaned_data.get('first_name')
-			last_name = form.cleaned_data.get('last_name')
-			date_of_birth = form.cleaned_data.get('date_of_birth')
-			password = form.cleaned_data.get('password1')
+		# not setting this to False if there is no value
+		is_valet = data.get('is_valet',False) # else False
 
+		profile_pic = data['profile_pic'] # grab the image FILE
 
-			user = User.objects.create_user(email,date_of_birth,first_name,last_name,password)
-			user.is_valet = request.POST.get('is_valet', False)
-			user.profile_pic = request.FILES['profile_pic']
-			user.save()
-			print "User registered"
+		user = User.objects.create_user(email, first_name, last_name, date_of_birth, password)
 
-			authenticated_user = authenticate(username=email, password=password)
-			print "User authenticated"
+		user.profile_pic = profile_pic
+		user.save()
 
-			if authenticated_user is not None:
-				if authenticated_user.is_active:
+		# import celery task
+		# tasks.resize_profile_img.delay((user.id, user.profile_pic.path),countdown=60)
 
-					login(request, authenticated_user)
-					print "User logged in"
+		authenticated_user = authenticate(username=user.email, password=user.password)
+		if authenticated_user is not None:
 
-					if user.is_valet:
-						return HttpResponseRedirect('%s'%(reverse('valet-map')))
-					else:
-						return HttpResponseRedirect('%s'%(reverse('user-map')))	
+			if authenticated_user.is_active:
 
-					# return HttpResponseRedirect('%s'%(reverse('home')))
+				login(request, authenticated_user)
 
-				else:
+				print authenticated_user.email + 'is logged in!'
 
-					return render(request, self.template, context)
+				# serialize User
+				serializer = UserSerializer(authenticated_user)
+				data = serializer.data
+				return Response(data)
+
+				# check in Angular controller if the user is_valet 
+				# redirect to respective map pages in Angular controller
+
 			else:
 
 				return render(request, self.template, context)				
@@ -81,7 +76,7 @@ class Register(APIView):
 		return render(request, self.template, context)
 
 
-class AngularLogin(APIView):
+class Login(APIView):
 
 	form = LoginForm
 

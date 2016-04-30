@@ -252,7 +252,7 @@
           centerControlDiv.style['margin-right'] = '10px';
           map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
 
-        $("#map").append("<div id='floatingButtons' class='row'><div id='optionsTitlePanel' class='row valign-wrapper'><span class='col s4 valign center-align'>REPARK</span><span class='col s4 valign center-align'>DROPOFF</span><span class='col s4 valign center-align'>SCHEDULE REPARK</span></div><div id='optionsIconPanel' class='row'><button id='requestRepark' class='col s4 btn-large' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i></button><button id='requestDropoff' class='col s4 btn-large' onClick='requestDropoff()'></button><button id='requestScheduledRepark' class='col s4 btn-large' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i></button></div></div><div id='loading-screen'></div>");
+        $("#map").append("<div id='floatingButtons' class='row'><div id='optionsTitlePanel' class='row valign-wrapper'><span class='col s4 valign center-align'>REPARK</span><span class='col s4 valign center-align'>DROPOFF</span><span class='col s4 valign center-align'>SCHEDULE REPARK</span></div><div id='optionsIconPanel' class='row'><button id='requestRepark' class='col s4 btn-large' onClick='requestRepark()'><i class='fa fa-car' aria-hidden='true'></i></button><button id='requestDropoff' class='col s4 btn-large' onClick='requestDropoff()'><i class='flaticon-transport'></i></button><button id='requestScheduledRepark' class='col s4 btn-large' onClick='requestScheduledRepark()'><i class='fa fa-calendar' aria-hidden='true'></i></button></div></div><div id='loading-screen'></div><div id='floating-button'><button onClick='lockPosition()' class='btn btn-success btn-md'>Set Location</button></div>");
 
         $("#loading-screen").append("<div class='col s12 floating-request-screen'><div class='col s12'><h3>Finding Your Valet</h3><h4>Thanks for your patience</h4></div></div>");
 
@@ -448,6 +448,20 @@
 
 
   function cancelRequest(){
+
+    var url = 'request/cancel/';
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: null,
+      success: function(data)
+      {
+        // run socket emit
+        console.log(data);
+      }
+    });
+    return false;
   }
 
   function getLatestRequest()

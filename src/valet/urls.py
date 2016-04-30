@@ -19,8 +19,8 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 
-from authentication.views import Register, Login, logout_user
-from authentication.angularviews import AngularLogin
+# from authentication.views import Register, Login, logout_user
+from authentication.angularviews import Register, Login, logout_user
 
 from orders.views import (
     customer_submits_valet_request, 
@@ -32,6 +32,7 @@ from orders.views import (
     request_completed,
     retrieve_latest_request,
     update_current_position,
+    cancel_request,
 )
 
 
@@ -41,8 +42,7 @@ urlpatterns = [
 
     # authentication
 	url(r'^register/$', Register.as_view(), name='register'),
-    # url(r'^login/$', Login.as_view(), name='login'),
-    url(r'^login/$', AngularLogin.as_view(), name='login'),
+    url(r'^login/$', Login.as_view(), name='login'),
     url(r'^logout/$', logout_user, name='logout'),
 
     # respective homepages
@@ -52,6 +52,7 @@ urlpatterns = [
     # requests
     url(r'^user/request/valet/$', customer_submits_valet_request, name='request-valet'),
     url(r'^user/request/latest/$', retrieve_latest_request, name='latest-request'),
+    url(r'^user/request/cancel/$', cancel_request, name='cancel-request'),
     url(r'^user/send-current-location/$', update_current_position, name='user-update-position'),
     url(r'^valet/request/accept/$', valet_accepts_request, name='accept-request'),
     url(r'^valet/request/arrived/$', valet_arrives_at_vehicle, name='arrived'),

@@ -9,3 +9,25 @@
 
 }
 
+
+/* Galaxy s5 */
+@media only screen and (min-width:360px) and (max-width:374px)
+{
+  
+
+}
+
+/* iPhone 6 */
+@media only screen and (min-width:375px) and (max-width:413px)
+{
+
+
+}
+
+/* iPhone 6 Plus */
+@media only screen and (min-width:414px)
+{
+
+   
+  
+}

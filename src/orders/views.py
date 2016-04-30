@@ -89,9 +89,21 @@ def customer_submits_valet_request(request, format=None):
 
 			if request.POST['is_dropoff']:
 
-				# retrieve latest request
-				last_request = customer.orders_repark_customer_related.latest('completed_at')
+				# retrieve latest request 
+				# this can be a regular repark or a scheduled repark
+				# must do some calculations to find the latest 
+				last_reg_repark_request = customer.orders_repark_customer_related.latest('completed_at')
+				last_scheduled_repark_request = customer.orders_scheduledrepark_customer_related.latest('completed_at')
+
+				if last_reg_repark_request.completed_at > last_scheduled_repark_request.completed_at:
+
+					last_request = last_reg_repark_request
+
+				else:
+
+					last_request = last_scheduled_repark_request
 				
+
 				# create Dropoff instance
 				dropoff = Dropoff()
 				dropoff.requested_by = customer
@@ -159,6 +171,44 @@ def repark_closed(request):
 		return Response(data, template_name='maps/user/index.html')
 
 
+@api_view(['POST',])
+@login_required(login_url=settings.LOGIN_URL)
+def cancel_request(request):
+
+	user = request.user
+
+	if request.method == "POST":
+
+		if 'repark_id' in request.session:
+
+			users_current_request = Repark.objects.get(id=request.session['repark_id'])
+
+
+		if 'dropoff_id' in request.session:
+
+			users_current_request = dropoff.objects.get(id=request.session['dropoff_id'])
+
+
+		if 'scheduled_repark' in request.session:
+
+			users_current_request = ScheduledRepark.objects.get(id=request.session['scheduled_repark_id'])
+
+
+		users_current_request.is_cancelled = True
+
+		if users_current_request.reparked_by:
+
+			valet = User.objects.get(email=users_current_request.reparked_by)
+			valet.is_available = True
+			users_current_request.in_progress = False
+			valet.save()
+
+		users_current_request.save()
+		del request.session
+
+		data = {'msg': 'Your request has been cancelled.'}
+
+		return Response(data, template_name='maps/user/index.html')
 
 
 @api_view(['GET',])
@@ -257,10 +307,12 @@ def valet_accepts_request(request):
 @user_passes_test(is_valet_check)
 def valet_arrives_at_vehicle(request):
 
-	valet = request.user
+	
 
 	# should I just use session/cache ???
 	if request.method == "POST":
+
+		valet = request.user
 
 		if 'repark_id' in request.session:
 			
@@ -293,9 +345,10 @@ def valet_arrives_at_vehicle(request):
 @user_passes_test(is_valet_check)
 def valet_on_route(request):
 
-	valet = request.user
 
 	if request.method == "POST":
+
+		valet = request.user
 
 		if 'repark_id' in request.session:
 
@@ -363,9 +416,11 @@ def valet_on_route(request):
 @user_passes_test(is_valet_check)
 def valet_drops_vehicle_at_new_location(request):
 
-	valet = request.user
+	
 
 	if request.method == "POST":
+
+		valet = request.user
 
 		dropoff_location = Location()
 		dropoff_location.lat = request.POST['lat']

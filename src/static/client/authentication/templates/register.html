@@ -3,7 +3,7 @@
 <div class="row dashboard-wrapper">
 	<div class="container" >
 		<div class="col s12">
-			<form ng-submit="vm.register()" role="form">
+			<form ng-submit="vm.register()" role="form" enctype="multipart/form-data">
 				<div class="input-field col s12">
 					<input type="text" name="email" id="email" ng-model="vm.email">
 					<label for="email">Email</label>
@@ -31,9 +31,20 @@
 					<label for="is_valet">Valet?</label>
 		        </div>
 				
+				<div class="file-field input-field col s12">
+			      <div class="btn">
+			        <span>File</span>
+			        <input type="file">
+			      </div>
+			      <div class="file-path-wrapper">
+			        <input class="file-path validate" type="text" id="profile_pic" name="profile_pic" ng-model="vm.profile_pic">
+			      </div>
+			    </div>
+
 				<div class="input-field col 12">
 					<button type="submit" class="waves-effect waves-light btn" >Register</button>
 				</div>
+
 			</form>
 		</div>
 		<div class="col s12">

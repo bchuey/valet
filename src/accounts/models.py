@@ -30,6 +30,8 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_valet = models.BooleanField(default=False)
     profile_pic = models.ImageField(upload_to=upload_to, blank=True)
+    profile_pic_small = models.CharField(max_length=255, blank=True)
+    profile_pic_medium = models.CharField(max_length=255, blank=True)
     # drivers_license = generic.GenericRelation('DriversLicense')
     is_available = models.BooleanField(default=False)
 

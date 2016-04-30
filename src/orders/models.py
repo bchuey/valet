@@ -22,6 +22,7 @@ class Order(models.Model):
 	is_active = models.BooleanField(default=True)
 	in_progress = models.BooleanField(default=False)
 	is_completed = models.BooleanField(default=False)
+	is_cancelled = models.BooleanField(default=False)
 	completed_at = models.DateTimeField(null=True,blank=True)
 	valet_start_pos = models.ForeignKey(Location, related_name='%(app_label)s_%(class)s_related', null=True, blank=True)
 

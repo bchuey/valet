@@ -13,6 +13,12 @@ app.controller('RegisterController', ['$location', '$scope', 'RegisterFactory', 
 		{
 			// do something else when request is successful
 			console.log("Successfully registered!");
+			account = data.data;
+			if(account.is_valet){
+				$window.location('/valet');
+			} else {
+				$window.location('/user');
+			}
 		}
 
 		function registerErrorFn(data, status, headers, config)
